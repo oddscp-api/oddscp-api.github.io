@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
-  title: Odds api
-  description: Апи для получения вилок и информации о матчах
+  title: Live Odds API
+  description: API для получения букмекерских вилок и информации о LIVE спортивных событиях
   version: '0.1'
 servers:
   - url: 'http://212.109.216.193:7777'
@@ -44,9 +44,9 @@ tags:
 x-tagGroups:
   - name: Основные
     tags:
-      - Вилки
-      - События
-      - Мета
+      - LIVE-Вилки
+      - LIVE-События
+      - Вспомогательное
   - name: Модели
     tags:
       - Sport
@@ -61,9 +61,9 @@ paths:
   /api/sports:
     get:
       tags:
-        - Мета
-      summary: Список видов спорта
-      description: Возвращает список с детальным описанием видов спорта
+        - Вспомогательное
+      summary: Виды спорта
+      description: Возвращает список доступных видов спорта с описанием
       responses:
         '200':
           description: OK
@@ -78,9 +78,9 @@ paths:
   /api/bookmakers:
     get:
       tags:
-        - Мета
-      summary: Список букмекеров
-      description: Возвращает список с детальным описанием букмекеров
+        - Вспомогательное
+      summary: Букмекеры
+      description: 'Возвращает список доступных букмекеров с описанием. В список войдут только те букмекеры, которые были запрошены/оплачены в Вашем тарифе.'
       responses:
         '200':
           description: OK
@@ -95,9 +95,9 @@ paths:
   /api/forks:
     get:
       tags:
-        - Вилки
-      description: Возвращает список вилок по определенным параметрам
-      summary: Получения списка вилок
+        - LIVE-Вилки
+      description: Возвращает список LIVE-вилок по заданным параметрам
+      summary: Получить список LIVE-вилок
       parameters:
         - name: bet_types
           description: Тип ставок в вилке
@@ -198,9 +198,9 @@ paths:
   /api/fork:
     get:
       tags:
-        - Вилки
-      summary: Получение вилки по ключу
-      description: Запрос для получения определенной вилки по ключу
+        - LIVE-Вилки
+      summary: Получить детали вилки
+      description: Запрос для получения подробных деталей по отдельной вилке (по её ключу)
       parameters:
         - name: key
           description: Идентификатор вилки
@@ -229,8 +229,8 @@ paths:
   /api/bk_events:
     get:
       tags:
-        - События
-      summary: Получение списка всех активных событий
+        - LIVE-События
+      summary: Получить список всех активных событий
       description: Запрос для получения всех активных событий
       responses:
         '200':
@@ -246,7 +246,7 @@ paths:
   /api/bk_event:
     get:
       tags:
-        - События
+        - LIVE-События
       summary: Поиск события на определенном букмекере
       description: Запрос для поиска определенного события по id или названию
       parameters:
@@ -294,17 +294,10 @@ paths:
   /api/event:
     get:
       tags:
-        - События
-      summary: Получение группы связанных событий
+        - LIVE-События
+      summary: Получить группу связанных событий
       description: 'Запрос для получения всех событий с разных букмекеров, которые объединены в одну группу'
       parameters:
-        - name: token
-          required: true
-          description: Ключ пользователя
-          in: query
-          schema:
-            type: string
-          example: dasfhd71316t3sdf03271g2mfdsoe712
         - name: id
           required: true
           description: id события
@@ -802,8 +795,8 @@ components:
         error:
           type: string
   securitySchemes:
-    TokenAuth:
-      description: Со всеми запросами должен передаваться ключ пользователя
+    URITokenAuth:
+      description: 'Ключ пользователя передаётся со всеми остальными параметрами в Query String. Его можно найти в Личном Кабинете, после оплаты/подключения тарифа.'
       type: apiKey
       in: query
       name: token
@@ -821,4 +814,4 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
 security:
-  - TokenAuth: []
+  - URITokenAuth: []
