@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: Live Odds API
+  title: 'oddscp.com: LIVE Odds HTTP API'
   description: API для получения букмекерских вилок и информации о LIVE спортивных событиях
   version: '0.1'
 servers:
@@ -298,6 +298,13 @@ paths:
       summary: Получить группу связанных событий
       description: 'Запрос для получения всех событий с разных букмекеров, которые объединены в одну группу'
       parameters:
+        - name: token
+          required: true
+          description: Ключ пользователя
+          in: query
+          schema:
+            type: string
+          example: dasfhd71316t3sdf03271g2mfdsoe712
         - name: id
           required: true
           description: id события
@@ -642,7 +649,7 @@ components:
         bk_name:
           type: string
           example: fonbet
-          description: Название на букмекера
+          description: Идентификатор букмекера
         event_id:
           type: integer
           description: Идентификатор группы событий
@@ -651,20 +658,20 @@ components:
           description: Идентификатор события на букмекере
         event_name:
           type: string
-          description: Название события
+          description: Полное название события
         direct_link:
           type: string
-          description: Ссылка на событие
+          description: Ссылка на событие на БК
         league_name:
           type: string
-          description: Название лиги
+          description: Название лиги/соревнования
         score:
           type: string
-          description: Счет
+          description: Текущий счёт
         sport:
           type: string
           example: tennis
-          description: Спорт
+          description: Вид спорта
         swapped:
           type: boolean
           description: 'Индикатор того, чтобы событие перевернуто относительно остальных событий в группе (GlobalEvent). Например на одном букмекере событие называется "Liverpool vs Chelsea", а на всех других - "Chelsea vs Liverpool".'
@@ -715,14 +722,14 @@ components:
         bk_name:
           type: string
           example: fonbet
-          description: Название на букмекера
+          description: Идентификатор букмекера
         bet:
           type: string
-          description: Ставка
+          description: Название ставки
         alt_bet:
           type: string
           nullable: true
-          description: Альтернативная ставка
+          description: Альтернативное название ставки
         cf:
           type: number
           description: Коэффициент
@@ -731,13 +738,13 @@ components:
           description: Ссылка на событие
         blocked:
           type: boolean
-          description: Индикатор блокировки ставки
+          description: Индикатор блокировки ставки (ставка недоступна на самой БК)
         bet_type:
           description: Тип ставки
           $ref: '#/components/schemas/BetType'
         added_at:
           type: number
-          description: Метка времени последнего открытия ставки
+          description: Метка времени последнего появления ставки
         updated_at:
           type: number
           description: Метка времени последнего обновления ставки
