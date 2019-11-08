@@ -62,7 +62,8 @@ paths:
     get:
       tags:
         - Мета
-      description: Список видов спорта
+      summary: Список видов спорта
+      description: Возвращает список с детальным описанием видов спорта
       responses:
         '200':
           description: OK
@@ -78,7 +79,8 @@ paths:
     get:
       tags:
         - Мета
-      description: Список букмекеров
+      summary: Список букмекеров
+      description: Возвращает список с детальным описанием букмекеров
       responses:
         '200':
           description: OK
@@ -94,7 +96,8 @@ paths:
     get:
       tags:
         - Вилки
-      description: Получения списка вилок
+      description: Возвращает список вилок по определенным параметрам
+      summary: Получения списка вилок
       parameters:
         - name: bet_types
           description: Тип ставок в вилке
@@ -196,7 +199,8 @@ paths:
     get:
       tags:
         - Вилки
-      description: Получение вилки по ключу
+      summary: Получение вилки по ключу
+      description: Запрос для получения определенной вилки по ключу
       parameters:
         - name: key
           description: Идентификатор вилки
@@ -226,7 +230,8 @@ paths:
     get:
       tags:
         - События
-      description: Список всех активных событий
+      summary: Получение списка всех активных событий
+      description: Запрос для получения всех активных событий
       responses:
         '200':
           description: OK
@@ -242,7 +247,8 @@ paths:
     get:
       tags:
         - События
-      description: Поиск события на определенном букмекере
+      summary: Поиск события на определенном букмекере
+      description: Запрос для поиска определенного события по id или названию
       parameters:
         - name: name
           description: Название события
@@ -289,7 +295,8 @@ paths:
     get:
       tags:
         - События
-      description: Получение всех связанных событий
+      summary: Получение группы связанных событий
+      description: 'Запрос для получения всех событий с разных букмекеров, которые объединены в одну группу'
       parameters:
         - name: token
           required: true
