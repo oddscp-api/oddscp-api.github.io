@@ -1,27 +1,28 @@
 openapi: 3.0.0
 info:
   title: 'oddscp.com: LIVE Odds HTTP API'
-  description: API для получения букмекерских вилок и информации о LIVE спортивных событиях
+  description: |-
+    API для получения букмекерских вилок и информации о LIVE спортивных
+    событиях
   version: '0.1'
 servers:
   - url: 'http://212.109.216.193:7777'
 tags:
   - name: Sport
     x-displayName: Sport
-    description: |
-      <SchemaDefinition schemaRef="#/components/schemas/Sport" />
+    description: '<SchemaDefinition schemaRef="#/components/schemas/Sport" />'
   - name: Bookmaker
     x-displayName: Bookmaker
-    description: |
-      <SchemaDefinition schemaRef="#/components/schemas/Bookmaker" />
+    description: '<SchemaDefinition schemaRef="#/components/schemas/Bookmaker" />'
   - name: BetType
     x-displayName: BetType
-    description: |
-      <SchemaDefinition schemaRef="#/components/schemas/BetType" />
+    description: '<SchemaDefinition schemaRef="#/components/schemas/BetType" />'
   - name: Fork
     x-displayName: Fork
-    description: |
-      <SchemaDefinition schemaRef="#/components/schemas/Fork" />
+    description: '<SchemaDefinition schemaRef="#/components/schemas/Fork" />'
+  - name: BetbotFork
+    x-displayName: BetbotFork
+    description: '<SchemaDefinition schemaRef="#/components/schemas/BetbotFork" />'
   - name: ForkHistory
     x-displayName: ForkHistory
     description: |
@@ -39,8 +40,7 @@ tags:
       <SchemaDefinition schemaRef="#/components/schemas/GlobalEvent" />
   - name: Market
     x-displayName: Market
-    description: |
-      <SchemaDefinition schemaRef="#/components/schemas/Market" />
+    description: '<SchemaDefinition schemaRef="#/components/schemas/Market" />'
 x-tagGroups:
   - name: Основные
     tags:
@@ -53,6 +53,7 @@ x-tagGroups:
       - Bookmaker
       - BetType
       - Fork
+      - BetbotFork
       - ForkHistory
       - BkEvent
       - GlobalEvent
@@ -64,6 +65,7 @@ paths:
         - Вспомогательное
       summary: Виды спорта
       description: Возвращает список доступных видов спорта с описанием
+      operationId: getSports
       responses:
         '200':
           description: OK
@@ -80,7 +82,10 @@ paths:
       tags:
         - Вспомогательное
       summary: Букмекеры
-      description: 'Возвращает список доступных букмекеров с описанием. В список войдут только те букмекеры, которые были запрошены/оплачены в Вашем тарифе.'
+      description: |-
+        Возвращает список доступных букмекеров с описанием. В список войдут
+        только те букмекеры, которые были запрошены/оплачены в Вашем тарифе.
+      operationId: getBookmakers
       responses:
         '200':
           description: OK
@@ -98,7 +103,17 @@ paths:
         - LIVE-Вилки
       description: Возвращает список LIVE-вилок по заданным параметрам
       summary: Получить список LIVE-вилок
+      operationId: getForks
       parameters:
+        - name: format
+          description: Формат вывода данных
+          in: query
+          schema:
+            type: string
+            default: null
+            enum:
+              - null
+              - betbot
         - name: bet_types
           description: Тип ставок в вилке
           in: query
@@ -167,7 +182,9 @@ paths:
           schema:
             type: number
         - name: is_middles
-          description: Коридоры в выдачи. -1 - без коридоров. 0 - вилки и коридоры. 1 - только коридоры
+          description: |-
+            Коридоры в выдачи. -1 - без коридоров. 0 - вилки и коридоры.
+            1 - только коридоры
           in: query
           schema:
             type: integer
@@ -184,13 +201,17 @@ paths:
             default: 0
       responses:
         '200':
-          description: Возвращает массив Fork
+          description: Возвращает массив Fork или BetbotFork в зависимости от параметра
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Fork'
+                oneOf:
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/Fork'
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/BetbotFork'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '422':
@@ -200,7 +221,10 @@ paths:
       tags:
         - LIVE-Вилки
       summary: Получить детали вилки
-      description: Запрос для получения подробных деталей по отдельной вилке (по её ключу)
+      description: |-
+        Запрос для получения подробных деталей по отдельной вилке (по её
+        ключу)
+      operationId: getFork
       parameters:
         - name: key
           description: Идентификатор вилки
@@ -232,6 +256,7 @@ paths:
         - LIVE-События
       summary: Получить список всех активных событий
       description: Запрос для получения всех активных событий
+      operationId: getBkEvents
       responses:
         '200':
           description: OK
@@ -249,6 +274,7 @@ paths:
         - LIVE-События
       summary: Поиск события на определенном букмекере
       description: Запрос для поиска определенного события по id или названию
+      operationId: getBkEvent
       parameters:
         - name: name
           description: Название события
@@ -269,7 +295,9 @@ paths:
             type: boolean
             default: true
         - name: bet
-          description: Оставляет в markets только указанную ставку. Работает только при full=true
+          description: |-
+            Оставляет в markets только указанную ставку. Работает только
+            при full=true
           in: query
           schema:
             type: string
@@ -296,7 +324,10 @@ paths:
       tags:
         - LIVE-События
       summary: Получить группу связанных событий
-      description: 'Запрос для получения всех событий с разных букмекеров, которые объединены в одну группу'
+      description: |-
+        Запрос для получения всех событий с разных букмекеров, которые
+        объединены в одну группу
+      operationId: getEvent
       parameters:
         - name: token
           required: true
@@ -391,102 +422,109 @@ components:
           description: Время жизни вилки в секундах
         bk1_name:
           type: string
-          description: Первый букмекер
+          description: Идентификатор первой БК (БК-1)
           example: fonbet
         bk2_name:
           type: string
-          description: Второй букмекер
+          description: Идентификатор второй БК (БК-2)
           example: fonbet
         bk1_bet_type:
-          description: Тип первой ставки
+          description: Тип ставки на БК-1
           $ref: '#/components/schemas/BetType'
         bk2_bet_type:
-          description: Тип второй ставки
+          description: Тип ставки на БК-2
           $ref: '#/components/schemas/BetType'
         bet_type:
-          description: 'Общий тип ставок в вилке. Если bk1_bet_type = bk2_bet_type, то bet_type = bk1_bet_type, иначе MIX'
+          description: |-
+            Общий тип ставок в вилке. Если bk1_bet_type = bk2_bet_type,
+            то bet_type = bk1_bet_type, иначе MIX
         sport:
           type: string
-          description: Спорт
+          description: Вид спорта
           example: tennis
         blocked:
           type: boolean
           description: Индикатор блокировки одной из ставок
         bk1_game:
           type: string
-          description: Название первого события
+          description: Название события на БК-1
         bk2_game:
           type: string
-          description: Название второго события
+          description: Название события на БК-2
         bk1_bet:
           type: string
-          description: Первая ставка
+          description: Ставка на БК-1
         bk2_bet:
           type: string
-          description: Вторая ставка
+          description: Ставка на БК-2
         bk1_alt_bet:
           type: string
           nullable: true
-          description: Альтернативная первая ставка
+          description: Альтернативная ставка на БК-1
         bk2_alt_bet:
           type: string
           nullable: true
-          description: Альтернативная вторая ставка
+          description: Альтернативная ставка на БК-2
         bk1_cf:
           type: number
-          description: Первый коэффициент
+          description: Коэффициент на БК-1
         bk2_cf:
           type: number
-          description: Вторый коэффициент
+          description: Коэффициент на БК-2
         bk1_event_id:
           type: string
-          description: Идентификатор события на первом букмекере
+          description: Идентификатор события на БК-1
         bk2_event_id:
           type: string
-          description: Идентификатор события на втором букмекере
+          description: Идентификатор события на БК-2
         bk1_href:
           type: string
-          description: Ссылка на первое событие
+          description: Ссылка на событие на БК-1
         bk2_href:
           type: string
-          description: Ссылка на второе событие
+          description: Ссылка на событие на БК-2
         bk1_league:
           type: string
-          description: Название лиги на первом букмекере
+          description: Название лиги на БК-1
         bk2_league:
           type: string
-          description: Название лиги на втором букмекере
+          description: Название лиги на БК-2
         bk1_score:
           type: string
-          description: Счет на первом букмекере
+          description: Текущий счёт на БК-1
         bk2_score:
           type: string
-          description: Счет на втором букмекере
+          description: Текущий счёт на БК-2
         bk1_margin:
           type: number
           nullable: true
-          description: Маржа первого букмекера
+          description: Маржа на БК-1
         bk2_margin:
           type: number
           nullable: true
-          description: Маржа второго букмекера
+          description: Маржа на БК-2
         history:
           type: array
-          description: Последние 10 изменений
+          description: Последние 10 изменений коэффициентов
           items:
             $ref: '#/components/schemas/ForkHistory'
         bk1_blocked:
           type: boolean
-          description: Индикатор блокировки на первом букмекере
+          description: Индикатор блокировки рынка на БК-1
         bk2_blocked:
           type: boolean
-          description: Индикатор блокировки на втором букмекере
+          description: Индикатор блокировки рынка на БК-1
         bk1_swapped:
           type: boolean
-          description: 'Индикатор того, чтобы событие перевернуто относительно остальных событий в группе (GlobalEvent). Например на одном букмекере событие называется "Liverpool vs Chelsea", а на всех других - "Chelsea vs Liverpool".'
+          description: |-
+            Индикатор того, чтобы событие перевернуто относительно остальных
+            событий в группе (GlobalEvent) на БК-1. Например на одном букмекере событие
+            называется "Liverpool vs Chelsea", а на всех других - "Chelsea vs Liverpool".
         bk2_swapped:
           type: boolean
-          description: 'Индикатор того, чтобы событие перевернуто относительно остальных событий в группе (GlobalEvent)'
+          description: |-
+            Индикатор того, чтобы событие перевернуто относительно остальных
+            событий в группе (GlobalEvent) на БК-2
       example:
         alive_sec: 35.0165781975
         bet_type: HANDICAP
@@ -521,17 +559,179 @@ components:
         fi: 2.17
         fork_key: 187915_cc9098a4ad20410512848d0fa32e6631
         history:
-          - - 1573193419.991
+          - |-
+            - 1573193419.991
             - 2.17
             - 1.88
             - 2.24
-            - '0:0 (0:0)'
-            - '0:0 (0:0)'
+            - 0:0 (0:0)
+            - 0:0 (0:0)
             - false
             - false
         is_middles: false
         ow: 19.6194014496
         sport: table-tennis
+    BetbotFork:
+      type: object
+      required:
+        - fork_id
+        - event_id
+        - income
+        - ow_income
+        - is_middles
+        - BK1_name
+        - BK2_name
+        - BK1_bet_type
+        - BK2_bet_type
+        - bet_type
+        - sport
+        - BK1_game
+        - BK2_game
+        - BK1_bet
+        - BK2_bet
+        - BK1_alt_bet
+        - BK2_alt_bet
+        - BK1_cf
+        - BK2_cf
+        - BK1_event_id
+        - BK2_event_id
+        - BK1_href
+        - BK2_href
+        - BK1_league
+        - BK2_league
+        - BK1_score
+        - BK2_score
+        - BK1_swapped
+        - BK2_swapped
+      properties:
+        fork_id:
+          type: string
+          description: Ключ вилки (fork_key)
+        event_id:
+          type: number
+          description: Идентификатор группы событий
+        income:
+          type: number
+          description: '% вилки (fi)'
+        ow_income:
+          type: number
+          description: fi * 2 + bk1_margin + bk2_margin (ow)
+        is_middles:
+          type: boolean
+          description: false - обычная вилка. true - коридор
+        BK1_name:
+          type: string
+          description: Идентификатор первой БК (БК-1)
+          example: fonbet
+        BK2_name:
+          type: string
+          description: Идентификатор второй БК (БК-2)
+          example: fonbet
+        BK1_bet_type:
+          description: Тип ставки на БК-1
+          $ref: '#/components/schemas/BetType'
+        BK2_bet_type:
+          description: Тип ставки на БК-2
+          $ref: '#/components/schemas/BetType'
+        bet_type:
+          description: |-
+            Общий тип ставок в вилке. Если bk1_bet_type = bk2_bet_type,
+            то bet_type = bk1_bet_type, иначе MIX
+        sport:
+          type: string
+          description: Вид спорта
+          example: tennis
+        BK1_game:
+          type: string
+          description: Название события на БК-1
+        BK2_game:
+          type: string
+          description: Название события на БК-2
+        BK1_bet:
+          type: string
+          description: Ставка на БК-1
+        BK2_bet:
+          type: string
+          description: Ставка на БК-2
+        BK1_alt_bet:
+          type: string
+          nullable: true
+          description: Альтернативная ставка на БК-1
+        BK2_alt_bet:
+          type: string
+          nullable: true
+          description: Альтернативная ставка на БК-2
+        BK1_cf:
+          type: number
+          description: Коэффициент на БК-1
+        BK2_cf:
+          type: number
+          description: Коэффициент на БК-2
+        BK1_event_id:
+          type: string
+          description: Идентификатор события на БК-1
+        BK2_event_id:
+          type: string
+          description: Идентификатор события на БК-2
+        BK1_href:
+          type: string
+          description: Ссылка на событие на БК-1
+        BK2_href:
+          type: string
+          description: Ссылка на событие на БК-2
+        BK1_league:
+          type: string
+          description: Название лиги на БК-1
+        BK2_league:
+          type: string
+          description: Название лиги на БК-2
+        BK1_score:
+          type: string
+          description: Текущий счёт на БК-1
+        BK2_score:
+          type: string
+          description: Текущий счёт на БК-2
+        BK1_swapped:
+          type: number
+          description: |-
+            Индикатор того, чтобы событие перевернуто относительно остальных
+            событий в группе (GlobalEvent) на БК-1. Например на одном букмекере событие
+            называется "Liverpool vs Chelsea", а на всех других - "Chelsea vs Liverpool".
+        BK2_swapped:
+          type: number
+          description: |-
+            Индикатор того, чтобы событие перевернуто относительно остальных
+            событий в группе (GlobalEvent) на БК-2
+      example:
+        BK1_alt_bet: null
+        BK1_bet: HANDICAP__P1(0.5)
+        BK1_bet_type: MIX
+        BK1_cf: 1.714
+        BK1_event_id: '1060523833'
+        BK1_game: Guria Lanchkhuti vs Baia Zugdidi
+        BK1_href: 'https://beta.pinnacle.com/ru/Sports/29/Leagues/201857/Events/1060523833'
+        BK1_league: Georgia - Erovnuli Liga 2
+        BK1_name: pinnacle
+        BK1_score: '0:0'
+        BK1_swapped: 0
+        BK2_alt_bet: null
+        BK2_bet: WIN__P2
+        BK2_bet_type: MIX
+        BK2_cf: 3.6
+        BK2_event_id: 6V83782549C1A_1_1
+        BK2_game: Guria Lanchkhuti vs FC Zugdidi
+        BK2_href: 'https://www.bet365.com'
+        BK2_league: Georgia Erovnuli Liga 2
+        BK2_name: bet365
+        BK2_score: '0:0'
+        BK2_swapped: 0
+        bet_type: MIX
+        event_id: 188144
+        fork_id: 188144_40c0ebb95a2bb632c685e259e463f84a
+        income: 13.88
+        is_middles: false
+        ow_income: -100
+        sport: soccer
     Sport:
       type: object
       required:
@@ -674,7 +874,10 @@ components:
           description: Вид спорта
         swapped:
           type: boolean
-          description: 'Индикатор того, чтобы событие перевернуто относительно остальных событий в группе (GlobalEvent). Например на одном букмекере событие называется "Liverpool vs Chelsea", а на всех других - "Chelsea vs Liverpool".'
+          description: |-
+            Индикатор того, чтобы событие перевернуто относительно остальных
+            событий в группе (GlobalEvent). Например на одном букмекере событие называется
+            "Liverpool vs Chelsea", а на всех других - "Chelsea vs Liverpool".
         markets:
           type: array
           description: Массив доступных ставок
@@ -803,7 +1006,10 @@ components:
           type: string
   securitySchemes:
     URITokenAuth:
-      description: 'Ключ пользователя передаётся со всеми остальными параметрами в Query String. Его можно найти в Личном Кабинете, после оплаты/подключения тарифа.'
+      description: |-
+        Ключ пользователя передаётся со всеми остальными параметрами в
+        Query String. Его можно найти в Личном Кабинете, после оплаты/подключения
+        тарифа.
       type: apiKey
       in: query
       name: token
