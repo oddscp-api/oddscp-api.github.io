@@ -26,7 +26,7 @@ tags:
   - name: ForkHistory
     x-displayName: ForkHistory
     description: |
-      История одного изменения рынка (массив)
+      Одно изменение рынка (массив)
       <SchemaDefinition schemaRef="#/components/schemas/ForkHistory" />
   - name: BkEvent
     x-displayName: BkEvent
@@ -41,6 +41,14 @@ tags:
   - name: Market
     x-displayName: Market
     description: '<SchemaDefinition schemaRef="#/components/schemas/Market" />'
+  - name: MarketWithHistory
+    x-displayName: MarketWithHistory
+    description: '<SchemaDefinition schemaRef="#/components/schemas/MarketWithHistory" />'
+  - name: MarketHistory
+    x-displayName: MarketHistory
+    description: |
+      Одно изменения рынка на определенном букмекере
+      <SchemaDefinition schemaRef="#/components/schemas/MarketHistory" />
 x-tagGroups:
   - name: Основные
     tags:
@@ -58,6 +66,8 @@ x-tagGroups:
       - BkEvent
       - GlobalEvent
       - Market
+      - MarketWithHistory
+      - MarketHistory
 paths:
   /api/sports:
     get:
@@ -354,6 +364,45 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         '404':
           description: Событие не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          $ref: '#/components/responses/MissingParameterError'
+  /api/market:
+    get:
+      tags:
+        - LIVE-События
+      summary: Поиск определенного рынка на букмекере
+      description: Запрос для поиска определенного рынка на заданном букмекере
+      operationId: getBkMarket
+      parameters:
+        - name: bk_event_id
+          required: true
+          description: id события
+          in: query
+          schema:
+            type: string
+          example: 6V84001788C1A_1_1
+        - name: bet
+          required: true
+          description: Название ставки
+          in: query
+          schema:
+            type: string
+          example: WIN__P1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketWithHistory'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          description: Рынок не найден
           content:
             application/json:
               schema:
@@ -833,6 +882,19 @@ components:
         - '0:1 13:55'
         - false
         - false
+    MarketHistory:
+      type: object
+      properties:
+        - type: number
+          description: timestamp изменения
+        - type: number
+          description: cf
+        - type: boolean
+          description: blocked
+      example:
+        - 15731923160.29
+        - 2.2
+        - false
     BkEvent:
       type: object
       required:
@@ -962,6 +1024,18 @@ components:
         cf: 1.02
         direct_link: null
         updated_at: 1573193575.0244918
+    MarketWithHistory:
+      allOf:
+        - $ref: '#/components/schemas/Market'
+        - type: object
+          required:
+            - history
+          properties:
+            history:
+              type: array
+              description: История изменения рынка
+              items:
+                $ref: '#/components/schemas/MarketHistory'
     GlobalEvent:
       type: object
       required:
