@@ -169,11 +169,28 @@ paths:
               - 0
               - 1
         - name: alive_sec
-          description: Минимальное время существования вилки
+          description: Минимальное время существования вилки для указанного процента (-3%)
           in: query
           schema:
             type: number
             default: 0
+        - name: alive_prc
+          description: 'Процент вилки, относительно которого рассчитывается alive_sec'
+          in: query
+          schema:
+            type: number
+            default: -3
+            enum:
+              - -3
+              - -2
+              - -1
+              - 0
+              - 0.5
+              - 1
+              - 1.5
+              - 2
+              - 2.5
+              - 3
       responses:
         '200':
           description: Возвращает массив Fork
@@ -514,7 +531,7 @@ components:
           description: Текущий счёт на БК-2
         alive_sec:
           type: string
-          description: Время существования вилки
+          description: Сколько секунд вилка имеет процент выше заданного в alive_prc (-3%)
       example:
         fork_id: 70a5d610dac4c5c1a6
         income: '-8.43'
