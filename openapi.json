@@ -291,7 +291,7 @@
             "description": "Идентификатор вилки",
             "required": true,
             "in": "path",
-            "example": "182128_6788852932bc1c34fc3f901f1dff25e2",
+            "example": "70a5d610dac4c5c1a6",
             "schema": {
               "type": "string"
             }
