@@ -1,52 +1,53 @@
+---
 openapi: 3.0.0
 info:
   title: 'oddscp.com: LIVE Odds HTTP API'
   description: |-
     API для получения букмекерских вилок и информации о LIVE спортивных
     событиях
-  version: '0.1'
+  version: 0.1.1
 servers:
-  - url: 'http://212.109.216.193:7777'
+- url: http://212.109.216.193:8111
 tags:
-  - name: Sport
-    x-displayName: Sport
-    description: '<SchemaDefinition schemaRef="#/components/schemas/Sport" />'
-  - name: Bookmaker
-    x-displayName: Bookmaker
-    description: '<SchemaDefinition schemaRef="#/components/schemas/Bookmaker" />'
-  - name: BetType
-    x-displayName: BetType
-    description: '<SchemaDefinition schemaRef="#/components/schemas/BetType" />'
-  - name: Fork
-    x-displayName: Fork
-    description: '<SchemaDefinition schemaRef="#/components/schemas/Fork" />'
-  - name: Event
-    x-displayName: Event
-    description: |
-      Событие на определенном букмекере
-      <SchemaDefinition schemaRef="#/components/schemas/Event" />
-  - name: Market
-    x-displayName: Market
-    description: '<SchemaDefinition schemaRef="#/components/schemas/Market" />'
+- name: Sport
+  x-displayName: Sport
+  description: <SchemaDefinition schemaRef="#/components/schemas/Sport" />
+- name: Bookmaker
+  x-displayName: Bookmaker
+  description: <SchemaDefinition schemaRef="#/components/schemas/Bookmaker" />
+- name: BetType
+  x-displayName: BetType
+  description: <SchemaDefinition schemaRef="#/components/schemas/BetType" />
+- name: Fork
+  x-displayName: Fork
+  description: <SchemaDefinition schemaRef="#/components/schemas/Fork" />
+- name: Event
+  x-displayName: Event
+  description: |
+    Событие на определенном букмекере
+    <SchemaDefinition schemaRef="#/components/schemas/Event" />
+- name: Market
+  x-displayName: Market
+  description: <SchemaDefinition schemaRef="#/components/schemas/Market" />
 x-tagGroups:
-  - name: Основные
-    tags:
-      - LIVE-Вилки
-      - LIVE-События
-      - Вспомогательное
-  - name: Модели
-    tags:
-      - Sport
-      - Bookmaker
-      - BetType
-      - Fork
-      - Event
-      - Market
+- name: Основные
+  tags:
+  - LIVE-Вилки
+  - LIVE-События
+  - Вспомогательное
+- name: Модели
+  tags:
+  - Sport
+  - Bookmaker
+  - BetType
+  - Fork
+  - Event
+  - Market
 paths:
-  /sports:
+  "/sports":
     get:
       tags:
-        - Вспомогательное
+      - Вспомогательное
       summary: Виды спорта
       description: Возвращает список доступных видов спорта с описанием
       operationId: getSports
@@ -58,13 +59,13 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Sport'
+                  "$ref": "#/components/schemas/Sport"
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
-  /bookmakers:
+          "$ref": "#/components/responses/UnauthorizedError"
+  "/bookmakers":
     get:
       tags:
-        - Вспомогательное
+      - Вспомогательное
       summary: Букмекеры
       description: |-
         Возвращает список доступных букмекеров с описанием. В список войдут
@@ -78,119 +79,118 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Bookmaker'
+                  "$ref": "#/components/schemas/Bookmaker"
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
-  /forks:
+          "$ref": "#/components/responses/UnauthorizedError"
+  "/forks":
     get:
       tags:
-        - LIVE-Вилки
+      - LIVE-Вилки
       description: Возвращает список LIVE-вилок по заданным параметрам
       summary: Получить список LIVE-вилок
       operationId: getForks
       parameters:
-        - name: bet_types
-          description: Тип ставок в вилке
-          in: query
-          style: form
-          explode: false
-          example: 'HALF_WIN,WIN'
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/BetType'
-        - name: sport
-          description: Спорт
-          in: query
-          style: form
-          explode: false
-          example: 'tennis,soccer'
-          schema:
-            type: array
-            items:
-              type: string
-        - name: event_id
-          description: Получение вилок только по указанному id события
-          in: query
-          schema:
+      - name: bet_types
+        description: Тип ставок в вилке
+        in: query
+        style: form
+        explode: false
+        example: HALF_WIN,WIN
+        schema:
+          type: array
+          items:
+            "$ref": "#/components/schemas/BetType"
+      - name: sport
+        description: Спорт
+        in: query
+        style: form
+        explode: false
+        example: tennis,soccer
+        schema:
+          type: array
+          items:
             type: string
-          example: 181993
-        - name: bk2_name
-          description: 'Список букмекеров, участвующих в вилке'
-          in: query
-          required: true
-          style: form
-          explode: false
-          example: 'fonbet,olimp,bet365'
-          schema:
-            type: array
-            items:
-              type: string
-        - name: bk_name
-          description: 'Букмекер, который обязательно должен участвовать в вилке'
-          in: query
-          example: fonbet
-          schema:
+      - name: event_id
+        description: Получение вилок только по указанному id события
+        in: query
+        schema:
+          type: string
+        example: 181993
+      - name: bk2_name
+        description: Список букмекеров, участвующих в вилке
+        in: query
+        required: true
+        style: form
+        explode: false
+        example: fonbet,olimp,bet365
+        schema:
+          type: array
+          items:
             type: string
-        - name: min_cf
-          description: Минимальный коэффициент
-          in: query
-          example: 1.1
-          schema:
-            type: number
-        - name: max_cf
-          description: Максимальный коэффициент
-          in: query
-          example: 3.5
-          schema:
-            type: number
-        - name: min_fi
-          description: Минимальный % вилки
-          in: query
-          example: -1
-          schema:
-            type: number
-        - name: max_fi
-          description: Максимальный % вилки
-          in: query
-          example: 10
-          schema:
-            type: number
-        - name: is_middles
-          description: |-
-            Коридоры в выдачи. -1 - без коридоров. 0 - вилки и коридоры.
-            1 - только коридоры
-          in: query
-          schema:
-            type: number
-            default: 0
-            enum:
-              - -1
-              - 0
-              - 1
-        - name: alive_sec
-          description: Минимальное время существования вилки для указанного процента (-3%)
-          in: query
-          schema:
-            type: number
-            default: 0
-        - name: alive_prc
-          description: 'Процент вилки, относительно которого рассчитывается alive_sec'
-          in: query
-          schema:
-            type: number
-            default: -3
-            enum:
-              - -3
-              - -2
-              - -1
-              - 0
-              - 0.5
-              - 1
-              - 1.5
-              - 2
-              - 2.5
-              - 3
+      - name: bk_name
+        description: Букмекер, который обязательно должен участвовать в вилке
+        in: query
+        example: fonbet
+        schema:
+          type: string
+      - name: min_cf
+        description: Минимальный коэффициент
+        in: query
+        example: 1.1
+        schema:
+          type: number
+      - name: max_cf
+        description: Максимальный коэффициент
+        in: query
+        example: 3.5
+        schema:
+          type: number
+      - name: min_fi
+        description: Минимальный % вилки
+        in: query
+        example: -1
+        schema:
+          type: number
+      - name: max_fi
+        description: Максимальный % вилки
+        in: query
+        example: 10
+        schema:
+          type: number
+      - name: is_middles
+        description: |-
+          Коридоры в выдачи. -1 - без коридоров. 0 - вилки и коридоры.
+          1 - только коридоры
+        in: query
+        schema:
+          type: number
+          default: 0
+          enum:
+          - -1
+          - 0
+          - 1
+      - name: alive_sec
+        description: Минимальное время существования вилки для указанного процента
+          (-1%)
+        in: query
+        schema:
+          type: number
+          default: 0
+      - name: alive_prc
+        description: Процент вилки, относительно которого рассчитывается alive_sec
+        in: query
+        schema:
+          type: number
+          default: -1
+          enum:
+          - -1
+          - 0
+          - 0.5
+          - 1
+          - 1.5
+          - 2
+          - 2.5
+          - 3
       responses:
         '200':
           description: Возвращает массив Fork
@@ -198,67 +198,67 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - type: array
-                    items:
-                      $ref: '#/components/schemas/Fork'
+                - type: array
+                  items:
+                    "$ref": "#/components/schemas/Fork"
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '422':
-          $ref: '#/components/responses/MissingParameterError'
-  '/forks/{fork_id}':
+          "$ref": "#/components/responses/MissingParameterError"
+  "/forks/{fork_id}":
     get:
       tags:
-        - LIVE-Вилки
+      - LIVE-Вилки
       summary: Получить детали вилки
       description: |-
         Запрос для получения подробных деталей по отдельной вилке (по её
         ключу)
       operationId: getFork
       parameters:
-        - name: fork_id
-          description: Идентификатор вилки
-          required: true
-          in: path
-          example: 70a5d610dac4c5c1a6
-          schema:
-            type: string
+      - name: fork_id
+        description: Идентификатор вилки
+        required: true
+        in: path
+        example: 70a5d610dac4c5c1a6
+        schema:
+          type: string
       responses:
         '200':
           description: Возвращает Fork
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Fork'
+                "$ref": "#/components/schemas/Fork"
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '404':
           description: Вилка не найдена
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
         '422':
-          $ref: '#/components/responses/MissingParameterError'
-  /events:
+          "$ref": "#/components/responses/MissingParameterError"
+  "/events":
     get:
       tags:
-        - LIVE-События
+      - LIVE-События
       summary: Получить список всех активных событий
       description: Запрос для получения всех активных событий
       operationId: getEvents
       parameters:
-        - name: sport
-          description: Спорт
-          in: query
-          example: 'soccer,tennis'
-          schema:
-            type: string
-        - name: bk_name
-          description: Идентификатор букмекера
-          in: query
-          example: fonbet
-          schema:
-            type: string
+      - name: sport
+        description: Спорт
+        in: query
+        example: soccer,tennis
+        schema:
+          type: string
+      - name: bk_name
+        description: Идентификатор букмекера
+        in: query
+        example: fonbet
+        schema:
+          type: string
       responses:
         '200':
           description: OK
@@ -267,58 +267,58 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Event'
+                  "$ref": "#/components/schemas/Event"
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
-  '/events/{bk_event_id}':
+          "$ref": "#/components/responses/UnauthorizedError"
+  "/events/{bk_event_id}":
     get:
       tags:
-        - LIVE-События
+      - LIVE-События
       summary: Поиск события на определенном букмекере
       description: Запрос для поиска определенного события по id или названию
       operationId: getEvent
       parameters:
-        - name: bk_event_id
-          required: true
-          description: id события
-          in: path
-          schema:
-            type: string
-          example: WLNBS21B94619065
+      - name: bk_event_id
+        required: true
+        description: id события
+        in: path
+        schema:
+          type: string
+        example: WLNBS21B94619065
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Event'
+                "$ref": "#/components/schemas/Event"
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '404':
           description: Событие не найдено
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
         '422':
-          $ref: '#/components/responses/MissingParameterError'
-  '/groups/{event_id}':
+          "$ref": "#/components/responses/MissingParameterError"
+  "/groups/{event_id}":
     get:
       tags:
-        - LIVE-События
+      - LIVE-События
       summary: Получить группу связанных событий
       description: |-
         Запрос для получения всех событий с разных букмекеров, которые
         объединены в одну группу
       operationId: getGroup
       parameters:
-        - name: event_id
-          required: true
-          description: id группы
-          in: path
-          schema:
-            type: string
-          example: 182220
+      - name: event_id
+        required: true
+        description: id группы
+        in: path
+        schema:
+          type: string
+        example: 182220
       responses:
         '200':
           description: OK
@@ -333,68 +333,68 @@ paths:
                     winline: WLNTTDE327C98125
                   status: OK
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
-  /markets:
+          "$ref": "#/components/responses/UnauthorizedError"
+  "/markets":
     get:
       tags:
-        - LIVE-События
+      - LIVE-События
       summary: Поиск рынков
       description: Запрос для поиска рынков по заданным параметрам
       operationId: getMarkets
       parameters:
-        - name: bk_event_ids
-          required: true
-          description: список id событий
-          in: query
-          schema:
-            type: string
-          example: 'FONBM50F801035DE,OLPBM3A2C25A6CAF'
-        - name: sport
-          required: true
-          description: Список видов спорта
-          in: query
-          schema:
-            type: string
-          example: 'tennis,soccer'
-        - name: bk_name
-          required: true
-          description: Идентификатор букмекера
-          in: query
-          schema:
-            type: string
-          example: fonbet
+      - name: bk_event_ids
+        required: true
+        description: список id событий
+        in: query
+        schema:
+          type: string
+        example: FONBM50F801035DE,OLPBM3A2C25A6CAF
+      - name: sport
+        required: true
+        description: Список видов спорта
+        in: query
+        schema:
+          type: string
+        example: tennis,soccer
+      - name: bk_name
+        required: true
+        description: Идентификатор букмекера
+        in: query
+        schema:
+          type: string
+        example: fonbet
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Market'
+                "$ref": "#/components/schemas/Market"
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '404':
           description: Рынок не найден
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                "$ref": "#/components/schemas/Error"
         '422':
-          $ref: '#/components/responses/MissingParameterError'
-  '/markets/{bk_event_id}':
+          "$ref": "#/components/responses/MissingParameterError"
+  "/markets/{bk_event_id}":
     get:
       tags:
-        - LIVE-События
+      - LIVE-События
       summary: Получение всех рынков определенного события
       description: Запрос для поиска всех рынков определенного события
       operationId: getEventMarkets
       parameters:
-        - name: bk_event_id
-          required: true
-          description: id события
-          in: path
-          schema:
-            type: string
-          example: WLNBS21B94619065
+      - name: bk_event_id
+        required: true
+        description: id события
+        in: path
+        schema:
+          type: string
+        example: WLNBS21B94619065
       responses:
         '200':
           description: OK
@@ -402,45 +402,45 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - type: array
-                    items:
-                      $ref: '#/components/schemas/Market'
+                - type: array
+                  items:
+                    "$ref": "#/components/schemas/Market"
         '401':
-          $ref: '#/components/responses/UnauthorizedError'
+          "$ref": "#/components/responses/UnauthorizedError"
         '422':
-          $ref: '#/components/responses/MissingParameterError'
+          "$ref": "#/components/responses/MissingParameterError"
 components:
   schemas:
     Fork:
       type: object
       required:
-        - fork_id
-        - event_id
-        - income
-        - ow_income
-        - is_middles
-        - BK1_name
-        - BK2_name
-        - BK1_bet_type
-        - BK2_bet_type
-        - bet_type
-        - sport
-        - BK1_game
-        - BK2_game
-        - BK1_bet
-        - BK2_bet
-        - BK1_alt_bet
-        - BK2_alt_bet
-        - BK1_cf
-        - BK2_cf
-        - BK1_event_id
-        - BK2_event_id
-        - BK1_href
-        - BK2_href
-        - BK1_league
-        - BK2_league
-        - BK1_score
-        - BK2_score
+      - fork_id
+      - event_id
+      - income
+      - ow_income
+      - is_middles
+      - BK1_name
+      - BK2_name
+      - BK1_bet_type
+      - BK2_bet_type
+      - bet_type
+      - sport
+      - BK1_game
+      - BK2_game
+      - BK1_bet
+      - BK2_bet
+      - BK1_alt_bet
+      - BK2_alt_bet
+      - BK1_cf
+      - BK2_cf
+      - BK1_event_id
+      - BK2_event_id
+      - BK1_href
+      - BK2_href
+      - BK1_league
+      - BK2_league
+      - BK1_score
+      - BK2_score
       properties:
         fork_id:
           type: string
@@ -450,7 +450,7 @@ components:
           description: Идентификатор группы событий
         income:
           type: number
-          description: '% вилки (fi)'
+          description: "% вилки (fi)"
         ow_income:
           type: number
           description: fi * 2 + bk1_margin + bk2_margin (ow)
@@ -467,10 +467,10 @@ components:
           example: fonbet
         BK1_bet_type:
           description: Тип ставки на БК-1
-          $ref: '#/components/schemas/BetType'
+          "$ref": "#/components/schemas/BetType"
         BK2_bet_type:
           description: Тип ставки на БК-2
-          $ref: '#/components/schemas/BetType'
+          "$ref": "#/components/schemas/BetType"
         bet_type:
           description: |-
             Общий тип ставок в вилке. Если bk1_bet_type = bk2_bet_type,
@@ -507,10 +507,28 @@ components:
           description: Коэффициент на БК-2
         BK1_event_id:
           type: string
-          description: Идентификатор события на БК-1
+          description: Идентификатор (наш внутренний) события на БК-1
         BK2_event_id:
           type: string
-          description: Идентификатор события на БК-2
+          description: Идентификатор (наш внутренний) события на БК-2
+        BK1_event_native_id:
+          type: string
+          description: Идентификатор (нативный, как на самой бк) события на БК-1
+        BK2_event_native_id:
+          type: string
+          description: Идентификатор (нативный, как на самой бк) события на БК-2
+        BK1_event_meta:
+          type: string
+          description: 'Формат: JSON. Мета-данные по событию на БК-1'
+        BK2_event_meta:
+          type: string
+          description: 'Формат: JSON. Мета-данные по событию на БК-2'
+        BK1_market_meta:
+          type: string
+          description: 'Формат: JSON. Мета-данные для поиска нужной ставки на БК-1'
+        BK2_market_meta:
+          type: string
+          description: 'Формат: JSON. Мета-данные для поиска нужной ставки на БК-2'
         BK1_href:
           type: string
           description: Ссылка на событие на БК-1
@@ -531,43 +549,50 @@ components:
           description: Текущий счёт на БК-2
         alive_sec:
           type: string
-          description: Сколько секунд вилка имеет процент выше заданного в alive_prc (-3%)
+          description: Сколько секунд вилка имеет процент выше заданного в alive_prc
+            (-1%)
       example:
-        fork_id: 70a5d610dac4c5c1a6
-        income: '-8.43'
-        sport: tennis
+        fork_id: 8a86a9cd528b53b366
+        income: 0
+        sport: volleyball
         bet_type: WIN
-        event_id: '93071'
+        event_id: '178089'
         is_middles: '0'
-        ow_income: '1.18'
+        ow_income: 14.98
         BK1_bet: WIN__P1
         BK1_bet_type: WIN
         BK1_alt_bet: ''
-        BK1_cf: '1.75'
-        BK1_event_id: OLPTN408C339788F
-        BK1_game: Козаки Ф. vs Осафуне К.
-        BK1_href: 'https://olimp.com/index.php?page=line&action=2&live[]=55431040&sid[]=3'
-        BK1_league: ITF W60. Киото. Япония. Хард. Квалификация
-        BK1_name: olimp
-        BK1_score: '0:1 (1:6 4:3) (40:40*)'
+        BK1_cf: 3
+        BK1_event_id: BT3VBD2545FB3320
+        BK1_event_native_id: 6V200234215476232932C91A_1_1
+        BK1_game: Zenit Novosibirsk-pro vs Izumrud Berdsk-pro
+        BK1_href: https://www.bet365.com
+        BK1_league: Russia Liga Pro
+        BK1_name: bet365
+        BK1_score: 1:1 (19:25 25:23 17:20)
+        BK1_event_meta: ''
+        BK1_market_meta: '{"betId":"687799702","name":"Game Lines|Zenit Novosibirsk-pro|Winner"}'
         BK2_bet: WIN__P2
         BK2_bet_type: WIN
         BK2_alt_bet: ''
-        BK2_cf: '1.95'
-        BK2_event_id: BT3TNC4494D98B5F
-        BK2_game: Funa Kozaki vs Kanako Osafune
-        BK2_href: 'https://www.bet365.com'
-        BK2_league: ITF W60 Kyoto
-        BK2_name: bet365
-        BK2_score: '0:1 (1:6 4:3) (40:40)'
-        alive_sec: '-1'
+        BK2_cf: 1.5
+        BK2_event_id: FONVB5B99B3C9A2B
+        BK2_event_native_id: '20190837'
+        BK2_game: Зенит Новосибирск-про vs Изумруд Бердск-про
+        BK2_href: https://www.fonbet.ru//sport/event/volleyball/45580/20190837/
+        BK2_league: Россия. Лига Про. Новосибирск
+        BK2_name: fonbet
+        BK2_score: 1:1 (19:25 25:23 17:20*)
+        BK2_event_meta: ''
+        BK2_market_meta: '{"isHeader":true,"fieldName":"v2","factor_id":923}'
+        alive_sec: 32
     Sport:
       type: object
       required:
-        - sport_id
-        - sport_name
-        - display_name_ru
-        - display_name_en
+      - sport_id
+      - sport_name
+      - display_name_ru
+      - display_name_en
       properties:
         sport_id:
           type: string
@@ -589,13 +614,13 @@ components:
     Bookmaker:
       type: object
       required:
-        - bk_id
-        - bk_name
-        - display_name_ru
-        - display_name_en
-        - production
-        - private
-        - active
+      - bk_id
+      - bk_name
+      - display_name_ru
+      - display_name_en
+      - production
+      - private
+      - active
       properties:
         bk_id:
           type: string
@@ -629,60 +654,62 @@ components:
     BetType:
       type: string
       enum:
-        - MIX
-        - WIN
-        - SET_WIN
-        - HALF_WIN
-        - WIN_CORNERS
-        - HALF_WIN_CORNERS
-        - ASIAN_TOTALS
-        - SET_ASIAN_TOTALS
-        - HALF_ASIAN_TOTALS
-        - ASIAN_TOTALS_CORNERS
-        - HALF_ASIAN_TOTALS_CORNERS
-        - TOTALS
-        - SET_TOTALS
-        - HALF_TOTALS
-        - TOTALS_CORNERS
-        - HALF_TOTALS_CORNERS
-        - TOTALS3W_CORNERS
-        - HALF_TOTALS3W_CORNERS
-        - TEAM_TOTALS
-        - SET_TEAM_TOTALS
-        - HALF_TEAM_TOTALS
-        - TEAM_TOTALS_CORNERS
-        - HALF_TEAM_TOTALS_CORNERS
-        - HANDICAP
-        - SET_HANDICAP
-        - HALF_HANDICAP
-        - HANDICAP_CORNERS
-        - HALF_HANDICAP_CORNERS
-        - ALL_TEAMS_GOALS
-        - SET_ALL_TEAMS_GOALS
-        - HALF_ALL_TEAMS_GOALS
-        - TEAM_GOALS
-        - SET_TEAM_GOALS
-        - HALF_TEAM_GOALS
-        - GAME_WIN
+      - MIX
+      - WIN
+      - SET_WIN
+      - HALF_WIN
+      - WIN_CORNERS
+      - HALF_WIN_CORNERS
+      - ASIAN_TOTALS
+      - SET_ASIAN_TOTALS
+      - HALF_ASIAN_TOTALS
+      - ASIAN_TOTALS_CORNERS
+      - HALF_ASIAN_TOTALS_CORNERS
+      - TOTALS
+      - TOTALS_OT
+      - SET_TOTALS
+      - HALF_TOTALS
+      - TOTALS_CORNERS
+      - HALF_TOTALS_CORNERS
+      - TOTALS3W_CORNERS
+      - HALF_TOTALS3W_CORNERS
+      - TEAM_TOTALS
+      - SET_TEAM_TOTALS
+      - HALF_TEAM_TOTALS
+      - TEAM_TOTALS_CORNERS
+      - HALF_TEAM_TOTALS_CORNERS
+      - HANDICAP
+      - HANDICAP_OT
+      - SET_HANDICAP
+      - HALF_HANDICAP
+      - HANDICAP_CORNERS
+      - HALF_HANDICAP_CORNERS
+      - ALL_TEAMS_GOALS
+      - SET_ALL_TEAMS_GOALS
+      - HALF_ALL_TEAMS_GOALS
+      - TEAM_GOALS
+      - SET_TEAM_GOALS
+      - HALF_TEAM_GOALS
+      - GAME_WIN
     Event:
       type: object
       required:
-        - bk_event_id
-        - bk_event_native_id
-        - bk_name
-        - bk_id
-        - event_id
-        - event_name
-        - team1
-        - team2
-        - direct_link
-        - league_name
-        - score
-        - sport
-        - sport_id
-        - active
-        - updated_at
-        - last_cf_at
+      - bk_event_id
+      - bk_event_native_id
+      - bk_name
+      - bk_id
+      - event_id
+      - event_name
+      - team1
+      - team2
+      - direct_link
+      - league_name
+      - score
+      - sport
+      - sport_id
+      - active
+      - updated_at
+      - last_cf_at
       properties:
         bk_name:
           type: string
@@ -750,9 +777,9 @@ components:
         team1: Татьяна Юган (Укр)
         team2: Татьяна Ярошенко (Укр)
         league_name: Сетка Кап. Женщины
-        direct_link: 'https://1xstavka.ru/live/Table-Tennis/1734759-Setka-Cup-Women/225864109-Tatiana-Yugan-Tatiana-Yaroshenko'
+        direct_link: https://1xstavka.ru/live/Table-Tennis/1734759-Setka-Cup-Women/225864109-Tatiana-Yugan-Tatiana-Yaroshenko
         added_at: '1581918479'
-        score: '2:0 (11:6 12:10 4:2) (0:0)'
+        score: 2:0 (11:6 12:10 4:2) (0:0)
         active: '1'
         updated_at: '1581920029'
         last_cf_at: '1581920029'
@@ -760,11 +787,11 @@ components:
     Market:
       type: object
       required:
-        - bet
-        - cf
-        - direct_link
-        - blocked
-        - updated_at
+      - bet
+      - cf
+      - direct_link
+      - blocked
+      - updated_at
       properties:
         bet:
           type: string
@@ -806,16 +833,16 @@ components:
       name: token
   responses:
     UnauthorizedError:
-      description: 'Токен отсутствует, просрочен или не хватает прав'
+      description: Токен отсутствует, просрочен или не хватает прав
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            "$ref": "#/components/schemas/Error"
     MissingParameterError:
       description: Отсутствует указанный параметр
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'
+            "$ref": "#/components/schemas/Error"
 security:
-  - URITokenAuth: []
+- URITokenAuth: []
