@@ -3,11 +3,11 @@
   "info": {
     "title": "oddscp.com: LIVE Odds HTTP API",
     "description": "API для получения букмекерских вилок и информации о LIVE спортивных\nсобытиях",
-    "version": "0.1"
+    "version": "0.1.1"
   },
   "servers": [
     {
-      "url": "http://212.109.216.193:7777"
+      "url": "http://212.109.216.193:8111"
     }
   ],
   "tags": [
@@ -242,7 +242,7 @@
           },
           {
             "name": "alive_sec",
-            "description": "Минимальное время существования вилки для указанного процента (-3%)",
+            "description": "Минимальное время существования вилки для указанного процента (-1%)",
             "in": "query",
             "schema": {
               "type": "number",
@@ -255,10 +255,8 @@
             "in": "query",
             "schema": {
               "type": "number",
-              "default": -3,
+              "default": -1,
               "enum": [
-                -3,
-                -2,
                 -1,
                 0,
                 0.5,
@@ -725,12 +723,36 @@
           },
           "BK1_event_id": {
             "type": "string",
-            "description": "Идентификатор события на БК-1"
+            "description": "Идентификатор (наш внутренний) события на БК-1"
           },
           "BK2_event_id": {
             "type": "string",
-            "description": "Идентификатор события на БК-2"
+            "description": "Идентификатор (наш внутренний) события на БК-2"
           },
+          "BK1_event_native_id": {
+            "type": "string",
+            "description": "Идентификатор (нативный, как на самой бк) события на БК-1"
+          },
+          "BK2_event_native_id": {
+            "type": "string",
+            "description": "Идентификатор (нативный, как на самой бк) события на БК-2"
+          },
+          "BK1_event_meta": {
+            "type": "string",
+            "description": "Формат: JSON. Мета-данные по событию на БК-1"
+          },
+          "BK2_event_meta": {
+            "type": "string",
+            "description": "Формат: JSON. Мета-данные по событию на БК-2"
+          },
+          "BK1_market_meta": {
+            "type": "string",
+            "description": "Формат: JSON. Мета-данные для поиска нужной ставки на БК-1"
+          },
+          "BK2_market_meta": {
+            "type": "string",
+            "description": "Формат: JSON. Мета-данные для поиска нужной ставки на БК-2"
+          },		  
           "BK1_href": {
             "type": "string",
             "description": "Ссылка на событие на БК-1"
@@ -757,39 +779,45 @@
           },
           "alive_sec": {
             "type": "string",
-            "description": "Сколько секунд вилка имеет процент выше заданного в alive_prc (-3%)"
+            "description": "Сколько секунд вилка имеет процент выше заданного в alive_prc (-1%)"
           }
         },
         "example": {
-          "fork_id": "70a5d610dac4c5c1a6",
-          "income": "-8.43",
-          "sport": "tennis",
-          "bet_type": "WIN",
-          "event_id": "93071",
-          "is_middles": "0",
-          "ow_income": "1.18",
-          "BK1_bet": "WIN__P1",
-          "BK1_bet_type": "WIN",
-          "BK1_alt_bet": "",
-          "BK1_cf": "1.75",
-          "BK1_event_id": "OLPTN408C339788F",
-          "BK1_game": "Козаки Ф. vs Осафуне К.",
-          "BK1_href": "https://olimp.com/index.php?page=line&action=2&live[]=55431040&sid[]=3",
-          "BK1_league": "ITF W60. Киото. Япония. Хард. Квалификация",
-          "BK1_name": "olimp",
-          "BK1_score": "0:1 (1:6 4:3) (40:40*)",
-          "BK2_bet": "WIN__P2",
-          "BK2_bet_type": "WIN",
-          "BK2_alt_bet": "",
-          "BK2_cf": "1.95",
-          "BK2_event_id": "BT3TNC4494D98B5F",
-          "BK2_game": "Funa Kozaki vs Kanako Osafune",
-          "BK2_href": "https://www.bet365.com",
-          "BK2_league": "ITF W60 Kyoto",
-          "BK2_name": "bet365",
-          "BK2_score": "0:1 (1:6 4:3) (40:40)",
-          "alive_sec": "-1"
-        }
+			"fork_id": "8a86a9cd528b53b366",
+			"income": 0,
+			"sport": "volleyball",
+			"bet_type": "WIN",
+			"event_id": "178089",
+			"is_middles": "0",
+			"ow_income": 14.98,
+			"BK1_bet": "WIN__P1",
+			"BK1_bet_type": "WIN",
+			"BK1_alt_bet": "",
+			"BK1_cf": 3,
+			"BK1_event_id": "BT3VBD2545FB3320",
+			"BK1_event_native_id": "6V200234215476232932C91A_1_1",
+			"BK1_game": "Zenit Novosibirsk-pro vs Izumrud Berdsk-pro",
+			"BK1_href": "https://www.bet365.com",
+			"BK1_league": "Russia Liga Pro",
+			"BK1_name": "bet365",
+			"BK1_score": "1:1 (19:25 25:23 17:20)",
+			"BK1_event_meta": "",
+			"BK1_market_meta": "{\"betId\":\"687799702\",\"name\":\"Game Lines|Zenit Novosibirsk-pro|Winner\"}",
+			"BK2_bet": "WIN__P2",
+			"BK2_bet_type": "WIN",
+			"BK2_alt_bet": "",
+			"BK2_cf": 1.5,
+			"BK2_event_id": "FONVB5B99B3C9A2B",
+			"BK2_event_native_id": "20190837",
+			"BK2_game": "Зенит Новосибирск-про vs Изумруд Бердск-про",
+			"BK2_href": "https://www.fonbet.ru//sport/event/volleyball/45580/20190837/",
+			"BK2_league": "Россия. Лига Про. Новосибирск",
+			"BK2_name": "fonbet",
+			"BK2_score": "1:1 (19:25 25:23 17:20*)",
+			"BK2_event_meta": "",
+			"BK2_market_meta": "{\"isHeader\":true,\"fieldName\":\"v2\",\"factor_id\":923}",
+			"alive_sec": 32
+		}
       },
       "Sport": {
         "type": "object",
@@ -890,6 +918,7 @@
           "ASIAN_TOTALS_CORNERS",
           "HALF_ASIAN_TOTALS_CORNERS",
           "TOTALS",
+		  "TOTALS_OT",
           "SET_TOTALS",
           "HALF_TOTALS",
           "TOTALS_CORNERS",
@@ -902,6 +931,7 @@
           "TEAM_TOTALS_CORNERS",
           "HALF_TEAM_TOTALS_CORNERS",
           "HANDICAP",
+		  "HANDICAP_OT",
           "SET_HANDICAP",
           "HALF_HANDICAP",
           "HANDICAP_CORNERS",
