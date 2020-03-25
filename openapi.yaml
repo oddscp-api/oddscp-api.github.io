@@ -435,6 +435,12 @@ components:
       - BK2_cf
       - BK1_event_id
       - BK2_event_id
+      - BK1_event_native_id
+      - BK2_event_native_id
+      - BK1_event_meta
+      - BK2_event_meta
+      - BK1_market_meta
+      - BK2_market_meta
       - BK1_href
       - BK2_href
       - BK1_league
