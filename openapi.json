@@ -241,6 +241,19 @@
             }
           },
           {
+            "name": "is_cyber",
+            "description": "Является ли киберспортом. 0 - не является киберспортом. 1 - явялется киберспортом.",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "default": 0,
+              "enum": [
+                0,
+                1
+              ]
+            }
+          },		
+          {
             "name": "alive_sec",
             "description": "Минимальное время существования вилки для указанного процента (-1%)",
             "in": "query",
@@ -617,6 +630,7 @@
           "income",
           "ow_income",
           "is_middles",
+          "is_cyber",		
           "BK1_name",
           "BK2_name",
           "BK1_bet_type",
@@ -666,6 +680,10 @@
           "is_middles": {
             "type": "boolean",
             "description": "false - обычная вилка. true - коридор"
+          },
+          "is_cyber": {
+            "type": "boolean",
+            "description": "false - обычный спорт. true - киберспорт"
           },
           "BK1_name": {
             "type": "string",
@@ -795,6 +813,7 @@
 			"bet_type": "WIN",
 			"event_id": "178089",
 			"is_middles": "0",
+			"is_cyber": "0",
 			"ow_income": 14.98,
 			"BK1_bet": "WIN__P1",
 			"BK1_bet_type": "WIN",
