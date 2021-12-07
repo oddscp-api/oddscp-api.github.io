@@ -32,7 +32,7 @@ tags:
 x-tagGroups:
 - name: Основные
   tags:
-  - LIVE-Вилки
+  - PREMATCH / LIVE-вилки
   - LIVE-События
   - Вспомогательное
 - name: Модели
@@ -85,9 +85,9 @@ paths:
   "/forks":
     get:
       tags:
-      - LIVE-Вилки
-      description: Возвращает список LIVE-вилок по заданным параметрам
-      summary: Получить список LIVE-вилок
+      - PREMATCH / LIVE-вилки
+      description: Возвращает список PREMATCH / LIVE-вилок по заданным параметрам
+      summary: Получить список PREMATCH / LIVE-вилок
       operationId: getForks
       parameters:
       - name: bet_types
@@ -208,7 +208,7 @@ paths:
   "/forks/{fork_id}":
     get:
       tags:
-      - LIVE-Вилки
+      - PREMATCH / LIVE-вилки
       summary: Получить детали вилки
       description: |-
         Запрос для получения подробных деталей по отдельной вилке (по её
