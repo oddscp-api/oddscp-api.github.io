@@ -46,7 +46,7 @@
     {
       "name": "Основные",
       "tags": [
-        "LIVE-Вилки",
+        "PREMATCH / PREMATCH / LIVE-вилки",
         "LIVE-События",
         "Вспомогательное"
       ]
@@ -123,10 +123,10 @@
     "/forks": {
       "get": {
         "tags": [
-          "LIVE-Вилки"
+          "PREMATCH / LIVE-вилки"
         ],
-        "description": "Возвращает список LIVE-вилок по заданным параметрам",
-        "summary": "Получить список LIVE-вилок",
+        "description": "Возвращает список PREMATCH / LIVE-вилок по заданным параметрам",
+        "summary": "Получить список PREMATCH / LIVE-вилок",
         "operationId": "getForks",
         "parameters": [
           {
@@ -312,7 +312,7 @@
     "/forks/{fork_id}": {
       "get": {
         "tags": [
-          "LIVE-Вилки"
+          "PREMATCH / LIVE-вилки"
         ],
         "summary": "Получить детали вилки",
         "description": "Запрос для получения подробных деталей по отдельной вилке (по её\nключу)",
