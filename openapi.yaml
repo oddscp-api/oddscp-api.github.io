@@ -32,7 +32,7 @@ tags:
 x-tagGroups:
 - name: Основные
   tags:
-  - LIVE-Вилки
+  - PREMATCH / PREMATCH / LIVE-вилки
   - LIVE-События
   - Вспомогательное
 - name: Модели
@@ -85,9 +85,9 @@ paths:
   "/forks":
     get:
       tags:
-      - LIVE-Вилки
-      description: Возвращает список LIVE-вилок по заданным параметрам
-      summary: Получить список LIVE-вилок
+      - PREMATCH / LIVE-вилки
+      description: Возвращает список PREMATCH / LIVE-вилок по заданным параметрам
+      summary: Получить список PREMATCH / LIVE-вилок
       operationId: getForks
       parameters:
       - name: bet_types
@@ -170,14 +170,13 @@ paths:
           - 0
           - 1
       - name: is_cyber
-        description: |-
-          Является ли киберспортом. 0 - не является киберспортом. 1 - является киберспортом.
+        description: Является ли киберспортом. 0 - не является киберспортом. 1 - явялется
+          киберспортом.
         in: query
         schema:
           type: number
           default: 0
           enum:
-          - -1
           - 0
           - 1
       - name: alive_sec
@@ -219,7 +218,7 @@ paths:
   "/forks/{fork_id}":
     get:
       tags:
-      - LIVE-Вилки
+      - PREMATCH / LIVE-вилки
       summary: Получить детали вилки
       description: |-
         Запрос для получения подробных деталей по отдельной вилке (по её
@@ -579,7 +578,7 @@ components:
         bet_type: WIN
         event_id: '178089'
         is_middles: '0'
-        is_cyber: '0',
+        is_cyber: '0'
         ow_income: 14.98
         BK1_bet: WIN__P1
         BK1_bet_type: WIN
