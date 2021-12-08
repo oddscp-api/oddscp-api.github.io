@@ -130,6 +130,15 @@
         "operationId": "getForks",
         "parameters": [
           {
+            "name": "live",
+            "description": "Получение прематч вилок. Указать \"&live=0\" для получения прематч вилок. По умолчанию запрашиваются LIVE-вилки, т.е. для LIVE-вилок этот параметр указывать не надо.",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "example": 0
+          },
+          {
             "name": "bet_types",
             "description": "Тип ставок в вилке",
             "in": "query",
