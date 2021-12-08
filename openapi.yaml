@@ -94,6 +94,7 @@ paths:
         description: Получение PREMATCH-вилок. Указать "&live=0" для получения прематч вилок. По умолчанию запрашиваются LIVE-вилки, т.е. для LIVE-вилок этот параметр указывать не надо.
         in: query
         schema:
+          nullable: true
           type: number
         example: 0
       - name: bet_types
