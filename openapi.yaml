@@ -169,6 +169,16 @@ paths:
           - -1
           - 0
           - 1
+      - name: is_cyber
+        description: |-
+          Является ли киберспортом. 0 - не является киберспортом. 1 - является киберспортом.
+        in: query
+        schema:
+          type: number
+          default: 0
+          enum:
+          - 0
+          - 1
       - name: alive_sec
         description: Минимальное время существования вилки для указанного процента
           (-1%)
@@ -419,6 +429,7 @@ components:
       - income
       - ow_income
       - is_middles
+	  - is_cyber
       - BK1_name
       - BK2_name
       - BK1_bet_type
@@ -463,6 +474,9 @@ components:
         is_middles:
           type: boolean
           description: false - обычная вилка. true - коридор
+        is_cyber:
+          type: boolean
+          description: false - не является киберспортом вилка. true - является киберспортом
         BK1_name:
           type: string
           description: Идентификатор первой БК (БК-1)
@@ -564,6 +578,7 @@ components:
         bet_type: WIN
         event_id: '178089'
         is_middles: '0'
+		is_cyber: '0'
         ow_income: 14.98
         BK1_bet: WIN__P1
         BK1_bet_type: WIN
