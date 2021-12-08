@@ -95,7 +95,7 @@ paths:
         in: query
         schema:
           type: string
-        example: 0.
+        example: 123
       - name: bet_types
         description: Тип ставок в вилке
         in: query
