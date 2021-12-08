@@ -95,7 +95,6 @@ paths:
         in: query
         schema:
           nullable: true
-          type: number
         example: 0
       - name: bet_types
         description: Тип ставок в вилке
