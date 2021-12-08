@@ -136,7 +136,7 @@
             "schema": {
               "type": "string"
             },
-            "example": 0
+            "example": 123
           },
           {
             "name": "bet_types",
