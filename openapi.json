@@ -48,6 +48,7 @@
       "tags": [
         "PREMATCH / LIVE-вилки",
         "LIVE-События",
+        "WEB-socket [Обновление коэффициентов]",
         "Вспомогательное"
       ]
     },
@@ -64,6 +65,34 @@
     }
   ],
   "paths": {
+    "/koef": {
+      "get": {
+        "tags": [
+          "WEB-socket [Обновление коэффициентов]"
+        ],
+        "summary": "Виды спорта",
+        "description": "Возвращает список доступных видов спорта с описанием",
+        "operationId": "getKoef",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sport"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
     "/sports": {
       "get": {
         "tags": [
