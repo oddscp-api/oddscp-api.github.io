@@ -34,7 +34,7 @@ x-tagGroups:
   tags:
   - PREMATCH / LIVE-вилки
   - LIVE-События
-  - WEB-socket [Обновление коэффициентов]
+  - WebSocket [Обновление коэффициентов]
   - Вспомогательное
 - name: Модели
   tags:
@@ -48,9 +48,9 @@ paths:
   "/koef":
     get:
       tags:
-      - WEB-socket [Обновление коэффициентов]
-      summary: Виды спорта
-      description: Возвращает список доступных видов спорта с описанием
+      - WebSocket [Обновление коэффициентов]
+      summary: Получение и обновление коэффицентов
+      description: Вся информация по WebSocket находится здесь - <a href="https://pastebin.com/ibLLzZjd">https://pastebin.com/ibLLzZjd</a>
       operationId: getKoef
       responses:
         '200':
