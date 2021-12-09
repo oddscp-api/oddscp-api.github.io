@@ -293,14 +293,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "oneOf": [
-                    {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Fork"
-                      }
-                    }
-                  ]
+                  "$ref": "#/components/schemas/Fork"
                 }
               }
             }
@@ -813,15 +806,15 @@
           },
           "cfs1": {
             "type": "string",
-            "description": "Коэффициенты на команду №1 (-1%)"
+            "description": "Коэффициенты на команду №1"
           },
           "cfs2": {
             "type": "string",
-            "description": "Коэффициенты на команду №2 (-1%)"
+            "description": "Коэффициенты на команду №2"
           },
           "all_scores": {
             "type": "string",
-            "description": "Текущий счёт на вилочном матче по всем БК. (-1%)"
+            "description": "Текущий счёт на вилочном матче по всем БК."
           }
         },
         "example": {
