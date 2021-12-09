@@ -216,10 +216,7 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                - type: array
-                  items:
-                    "$ref": "#/components/schemas/Fork"
+                "$ref": "#/components/schemas/Fork"
         '401':
           "$ref": "#/components/responses/UnauthorizedError"
         '422':
@@ -584,15 +581,12 @@ components:
         cfs1:
           type: string
           description: Коэффициенты на команду №1
-            (-1%)
         cfs2:
           type: string
           description: Коэффициенты на команду №2
-            (-1%)
         all_scores:
           type: string
           description: Текущий счёт на вилочном матче по всем БК.
-            (-1%)
       example:
         fork_id: 8a86a9cd528b53b366
         income: 0
