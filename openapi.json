@@ -450,6 +450,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "live",
+            "description": "Получение **PREMATCH-событий**. Указать \"**&live=0**\" для получения прематч событй. По умолчанию запрашиваются LIVE-события, т.е. для LIVE-событий этот параметр указывать не надо.",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            },
+            "example": 0
           }
         ],
         "responses": {
@@ -1102,7 +1111,10 @@
           "sport_id",
           "active",
           "updated_at",
-          "last_cf_at"
+          "last_cf_at",
+          "has_draw",
+          "__unique__",
+          "swapped"
         ],
         "properties": {
           "bk_name": {
@@ -1175,6 +1187,21 @@
             "type": "string",
             "example": "tennis",
             "description": "Время последнего изменения коэффициентов"
+          },
+          "has_draw": {
+            "type": "string",
+            "example": "tennis",
+            "description": "уточнить"
+          },
+          "__unique__": {
+            "type": "string",
+            "example": "tennis",
+            "description": "уточнить"
+          },
+          "swapped": {
+            "type": "string",
+            "example": "tennis",
+            "description": "уточнить"
           }
         },
         "example": {
@@ -1182,6 +1209,8 @@
           "bk_event_native_id": "225864109",
           "bk_name": "1xbet",
           "bk_id": "XBT",
+          "has_draw": "0",
+          "__unique__": "29172",
           "sport_id": "TT",
           "sport": "table-tennis",
           "event_name": "Татьяна Юган (Укр) vs Татьяна Ярошенко (Укр)",
@@ -1194,7 +1223,8 @@
           "active": "1",
           "updated_at": "1581920029",
           "last_cf_at": "1581920029",
-          "event_id": "93134"
+          "event_id": "93134",
+          "swapped": "0"
         }
       },
       "Market": {
