@@ -49,6 +49,7 @@
         "PREMATCH / LIVE-вилки",
         "LIVE-События",
         "WebSocket [Обновление коэффициентов]",
+        "Валуи [Value bets]",
         "Вспомогательное"
       ]
     },
@@ -65,6 +66,34 @@
     }
   ],
   "paths": {
+    "/valuebets": {
+      "get": {
+        "tags": [
+          "Валуи [Value bets]"
+        ],
+        "summary": "Возвращает список валуев по заданным параметрам",
+        "description": "Получить список валуев",
+        "operationId": "getValuebets",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Sport"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
     "/koef": {
       "get": {
         "tags": [
@@ -314,6 +343,15 @@
             "schema": {
               "type": "number"
             }
+          },
+          {
+            "name": "score_filter",
+            "description": "Отключение сверки счета между бк. По умолчанию у вилок включена сверка счета, что бы избежать ошибочных вилок из-за задержки обновления данных у БК. Указать \"**&score_filter=0**\" для отключение сверки счета.",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            },
+            "example": 0
           }
         ],
         "responses": {
