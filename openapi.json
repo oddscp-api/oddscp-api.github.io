@@ -69,10 +69,10 @@
     "/valuebets": {
       "get": {
         "tags": [
-          "PREMATCH / LIVE-вилки"
+          "Валуи [Value bets]"
         ],
-        "description": "Возвращает список PREMATCH / LIVE-вилок по заданным параметрам",
-        "summary": "Получить список PREMATCH / LIVE-вилок",
+        "description": "Возвращает список валуев по заданным параметрам",
+        "summary": "Получить список валуев",
         "operationId": "getValueBets",
         "parameters": [
           {
