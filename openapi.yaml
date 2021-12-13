@@ -49,21 +49,155 @@ paths:
   "/valuebets":
     get:
       tags:
-      - Валуи [Value bets]
-      summary: Возвращает список валуев по заданным параметрам
-      description: Получить список валуев
-      operationId: getValuebets
+      - PREMATCH / LIVE-вилки
+      description: Возвращает список PREMATCH / LIVE-вилок по заданным параметрам
+      summary: Получить список PREMATCH / LIVE-вилок
+      operationId: getForks
+      parameters:
+      - name: live
+        description: Получение **PREMATCH-вилок**. Указать "**&live=0**" для получения прематч вилок. По умолчанию запрашиваются LIVE-вилки, т.е. для LIVE-вилок этот параметр указывать не надо.
+        in: query
+        schema:
+          type: number
+        example: 0
+      - name: bet_types
+        description: Тип ставок в вилке.<br>
+          Актуальный список ставок с подробным описанием находится по этой ссылке - <a href="http://api.oddscp.com:8111/static/possible_bets_list.txt">http://api.oddscp.com:8111/static/possible_bets_list.txt</a>
+        in: query
+        style: form
+        explode: false
+        example: HALF_WIN,WIN
+        schema:
+          type: array
+          items:
+            "$ref": "#/components/schemas/BetType"
+      - name: sport
+        description: Спорт
+        in: query
+        style: form
+        explode: false
+        example: tennis,soccer
+        schema:
+          type: array
+          items:
+            type: string
+      - name: event_id
+        description: Получение вилок только по указанному id события
+        in: query
+        schema:
+          type: string
+        example: 181993
+      - name: bk2_name
+        description: Список букмекеров, участвующих в вилке
+        in: query
+        required: true
+        style: form
+        explode: false
+        example: fonbet,olimp,bet365
+        schema:
+          type: array
+          items:
+            type: string
+      - name: bk_name
+        description: Букмекер, который обязательно должен участвовать в вилке
+        in: query
+        example: fonbet
+        schema:
+          type: string
+      - name: min_cf
+        description: Минимальный коэффициент
+        in: query
+        example: 1.1
+        schema:
+          type: number
+      - name: max_cf
+        description: Максимальный коэффициент
+        in: query
+        example: 3.5
+        schema:
+          type: number
+      - name: min_fi
+        description: Минимальный % вилки
+        in: query
+        example: -1
+        schema:
+          type: number
+      - name: max_fi
+        description: Максимальный % вилки
+        in: query
+        example: 10
+        schema:
+          type: number
+      - name: is_middles
+        description: |-
+          Коридоры в выдачи. -1 - без коридоров. 0 - вилки и коридоры.
+          1 - только коридоры
+        in: query
+        schema:
+          type: number
+          default: 0
+          enum:
+          - -1
+          - 0
+          - 1
+      - name: alive_sec
+        description: Минимальное время существования вилки для указанного процента
+          (-1%)
+        in: query
+        schema:
+          type: number
+          default: 0
+      - name: alive_prc
+        description: Процент вилки, относительно которого рассчитывается alive_sec
+        in: query
+        schema:
+          type: number
+          default: -1
+          enum:
+          - -1
+          - 0
+          - 0.5
+          - 1
+          - 1.5
+          - 2
+          - 2.5
+          - 3
+      - name: get_cfs
+        description: Выдает список коэффициентов для текущего маркета на всех бк в данный момент и выдает текущий счёт на вилочном матче. В ответе появятся 3 ключа - cfs1, cfs2, all_scores.
+                    <details>
+         <summary>**<i>Способы применения (развернуть):</i>**</summary>
+          <p><i>В первую очередь, следует использовать для определения "инициатора вилки".  В этом случае вам следует пройтись по всему списку БК и рассчитать вилки по стандартной формуле (мы с этим поможем, если её у вас нет) от нужного вам процента.<br><br>
+          Также, следует обязательно учесть "зеркала" - оптимальный вариант взять самый высокий кф из всех зеркальных контор. Сам список зеркал можно получить используя данные метода /bookmakers.<br><br>
+          Помимо определения "инициатора", эти данные можно использовать для более глубокой кастомизации ваших стратегий, или проще говоря - фильтровать общий поток вилок. Как именно? Тут уже всё остаётся на усмотрение вашей собственной фантазии и вашего опыта.<br><br>
+          Наличие текущего счёта на вилочном матче по всем БК позволит вам более детально анализировать текущую ситуацию и быть более уверенными в тех ставках, которые вы совершаете.</i></p>
+          </details>
+        in: query
+        example: 1
+        schema:
+          type: number
+      - name: score_filter
+        description: Отключение сверки счета между бк. По умолчанию у вилок включена сверка счета, что бы избежать ошибочных вилок из-за задержки обновления данных у БК. Указать "**&score_filter=0**" для отключение сверки счета. 
+        in: query
+        schema:
+          type: number
+        example: 0
+      - name: show_swap
+        description: Отображать был ли перевернут порядок команд для каждой бк в вилке. В ответе появятся 2 ключа - BK1_event_swapped и BK2_event_swapped. Указать "**&show_swap=1**" для включения отображения. 
+        in: query
+        schema:
+          type: number
+        example: 1        
       responses:
         '200':
-          description: OK
+          description: Возвращает массив Fork
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  "$ref": "#/components/schemas/Sport"
+                "$ref": "#/components/schemas/Fork"
         '401':
           "$ref": "#/components/responses/UnauthorizedError"
+        '422':
+          "$ref": "#/components/responses/MissingParameterError"
   "/koef":
     get:
       tags:
