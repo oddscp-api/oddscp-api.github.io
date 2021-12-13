@@ -52,7 +52,7 @@ paths:
       - PREMATCH / LIVE-вилки
       description: Возвращает список PREMATCH / LIVE-вилок по заданным параметрам
       summary: Получить список PREMATCH / LIVE-вилок
-      operationId: getForks
+      operationId: getValueBets
       parameters:
       - name: live
         description: Получение **PREMATCH-вилок**. Указать "**&live=0**" для получения прематч вилок. По умолчанию запрашиваются LIVE-вилки, т.е. для LIVE-вилок этот параметр указывать не надо.
