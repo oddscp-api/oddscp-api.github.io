@@ -73,7 +73,7 @@
         ],
         "description": "Возвращает список PREMATCH / LIVE-вилок по заданным параметрам",
         "summary": "Получить список PREMATCH / LIVE-вилок",
-        "operationId": "getForks",
+        "operationId": "getValueBets",
         "parameters": [
           {
             "name": "live",
