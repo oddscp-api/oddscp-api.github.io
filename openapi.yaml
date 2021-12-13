@@ -49,9 +49,9 @@ paths:
   "/valuebets":
     get:
       tags:
-      - PREMATCH / LIVE-вилки
-      description: Возвращает список PREMATCH / LIVE-вилок по заданным параметрам
-      summary: Получить список PREMATCH / LIVE-вилок
+      - Валуи [Value bets]
+      description: Возвращает список валуев по заданным параметрам
+      summary: Получить список валуев
       operationId: getValueBets
       parameters:
       - name: live
