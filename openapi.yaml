@@ -412,7 +412,7 @@ paths:
       tags:
       - LIVE-События
       summary: Поиск рынков
-      description: Запрос для поиска рынков по заданным параметрам
+      description: Запрос для поиска рынков по заданным параметрам.<br>Один из параметров обязателен при запросе - __bk_event_ids__ и/или __bk_name__
       operationId: getMarkets
       parameters:
       - name: bk_event_ids
@@ -423,7 +423,7 @@ paths:
           type: string
         example: FONBM50F801035DE,OLPBM3A2C25A6CAF
       - name: sport
-        required: true
+        required: false
         description: Список видов спорта
         in: query
         schema:
@@ -948,7 +948,11 @@ components:
       - cf
       - direct_link
       - blocked
+      - meta
+      - last_of_three
+      - market_type_idx
       - updated_at
+      - updated_at_ms
       properties:
         bet:
           type: string
@@ -962,16 +966,32 @@ components:
         blocked:
           type: boolean
           description: Индикатор блокировки ставки (ставка недоступна на самой БК)
+        meta:
+          type: string
+          description: Формат JSON. Мета-данные для поиска нужной ставки на БК.
+        last_of_three:
+          type: string
+          description: Уточнить
+        market_type_idx:
+          type: string
+          description: ID типа маркета (уточнить)
         updated_at:
           type: number
           description: Метка времени последнего обновления ставки
+        updated_at_ms:
+          type: number
+          description: Метка времени последнего обновления ставки в милисекундах
       example:
         bet: WIN__P1
         bk_name: 1xbet
         blocked: '0'
         cf: '1.02'
         direct_link: ''
+        meta: '{"group_name":"Основные","market_name":"Исходы","outcome_name":"1","subevent_id":31703982,"market_type":0,"market_num":120,"factor_id":921}'
+        last_of_three: ''
+        market_type_idx: '1-0-0-1'
         updated_at: '1573193575'
+        updated_at_ms: '1573193575251'
     Error:
       type: object
       properties:
