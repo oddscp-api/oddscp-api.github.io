@@ -474,10 +474,7 @@ paths:
           content:
             application/json:
               schema:
-                oneOf:
-                - type: array
-                  items:
-                    "$ref": "#/components/schemas/Market"
+               "$ref": "#/components/schemas/Market"
         '401':
           "$ref": "#/components/responses/UnauthorizedError"
         '422':
