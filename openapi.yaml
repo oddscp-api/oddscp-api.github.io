@@ -948,44 +948,43 @@ components:
       properties:
         cfs:
           type: string
-          description: ID валуя (ключ валуя)
+          description: Коэффициенты на других бк (Текущий кф, Сколько секунд назад кф изменился, Текущий счёт в матче, Маржа.)
         data:
           type: number
-          description: Идентификатор группы событий
+          description: Валуйные расчеты
       example:
-        fork_id: 8a86a9cd528b53b366
         cfs: {
-                "BT3": [
+                "BT3": '[
                     "21",
                     120,
                     "0:2 (9:25 13:25 19:21)",
                     4.56
-                ],
-                "WLN": [
-                    "10.25",
+                ]',
+                "WLN": '[
+                    "12.25",
                     23,
                     "0:2 (9:25 13:25 19:21)",
                     8.16
-                ],
-                "1WN": [
+                ]',
+                "1WN": '[
                     "11",
                     77,
                     "0:2 (9:25 13:25 19:21)",
                     null
-                ],
-                "STY": [
+                ]',
+                "STY": '[
                     "11",
                     137,
                     "0:2 (9:25 13:25 19:21)",
                     8.1
-                ]
+                ]'
             }
         data: {
                 "need_cfs": '[
-                    10.25,
+                    12.25,
                     11,
                     11
-                ],
+                ]',
                 "cf_orig": 21,
                 "aw_avg": -4.1,
                 "aw_mdn": -4.1,
@@ -1459,8 +1458,6 @@ components:
       - direct_link
       - blocked
       - meta
-      - last_of_three
-      - market_type_idx
       - updated_at
       - updated_at_ms
       properties:
@@ -1479,12 +1476,6 @@ components:
         meta:
           type: string
           description: Формат JSON. Мета-данные для поиска нужной ставки на БК.
-        last_of_three:
-          type: string
-          description: Уточнить
-        market_type_idx:
-          type: string
-          description: ID типа маркета (уточнить)
         updated_at:
           type: number
           description: Метка времени последнего обновления ставки
@@ -1498,8 +1489,6 @@ components:
         cf: '1.02'
         direct_link: ''
         meta: '{"group_name":"Основные","market_name":"Исходы","outcome_name":"1","subevent_id":31703982,"market_type":0,"market_num":120,"factor_id":921}'
-        last_of_three: ''
-        market_type_idx: '1-0-0-1'
         updated_at: '1573193575'
         updated_at_ms: '1573193575251'
     Error:
