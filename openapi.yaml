@@ -220,10 +220,9 @@ paths:
       description: __Работа ведется исключительно через WebSocket, а не через GET запросы.__<br><br>
        __Пример адреса для соединения&#58;__ <i>ws&#58;//api.oddscp.com&#58;8001 </i> <br><br>
         __Пример сообщения для отправки&#58;__ <i>{"cmd"&#58; "subscribe", "auth_key"&#58; "aeb34659fbfa87895dfgf977b63647fe", "needed_bk"&#58; ["fonbet:live"]}</i><br>
-        __Пример сообщения для отправки (включая получение EVENT_ID)&#58;__ <i>{"cmd"&#58; "subscribe", "auth_key"&#58; "aeb34659fbfa87895dfgf977b63647fe", "needed_bk"&#58; ["fonbet:live"], "send_events_ids"&#58; true, "echo_remove_event_src"&#58; true}</i><br><br>
+        __Пример сообщения для отправки (включая получение EVENT_ID)&#58;__ <i>{"cmd"&#58; "subscribe", "auth_key"&#58; "aeb34659fbfa87895dfgf977b63647fe", "needed_bk"&#58; ["fonbet:live"], "needed_sport"&#58; ["soccer"], "send_events_ids"&#58; true, "echo_remove_event_src"&#58; true}</i><br><br>
         <details><summary><strong>Подробнее о параметре "send_events_ids"&#58; true (развернуть):</strong></summary><p><br>При указании в запросе параметра <i>"echo_remove_event_src":true</i><br>Во входящих сообщениях типа remove_event будет дополнительно приходить <i>{"received_from_parsers":true/false}</i><br><br><strong>received_from_parsers&#58;</strong><br><strong>true</strong> - снято у букмекера<br><strong>false</strong> - снято у нас<br><br>Это сделанно для того, что бы давать понять по какой причине событие удалено. При техническом переподключении парсера или снятием события на БК.<br><br>
-        <strong>Пример:</strong><br>
-            __remove_event&#58;__<br>
+        <strong>Пример remove_event&#58;</strong><br>
                 &#9;["bookmaker","remove_event","BKMSCA2884C843CF", {"received_from_parsers"&#58; true}]<br></p></details><br><br>
         
         
@@ -875,7 +874,7 @@ components:
         BK1_event_id: BT3VBD2545FB3320
         BK1_event_native_id: 6V200234215476232932C91A_1_1
         BK1_game: Zenit Novosibirsk-pro vs Izumrud Berdsk-pro
-        BK1_href: https://www.bet365.com
+        BK1_href: https://www.bet365.com/#/IP/EV15924988815C13
         BK1_league: Russia Liga Pro
         BK1_name: bet365
         BK1_score: 1:1 (19:25 25:23 17:20)
@@ -1199,7 +1198,7 @@ components:
         BK1_event_id: BT3VBD2545FB3320
         BK1_event_native_id: 6V200234215476232932C91A_1_1
         BK1_game: Zenit Novosibirsk-pro vs Izumrud Berdsk-pro
-        BK1_href: https://www.bet365.com
+        BK1_href: https://www.bet365.com/#/IP/EV15924988815C13
         BK1_league: Russia Liga Pro
         BK1_name: bet365
         BK1_score: 1:1 (19:25 25:23 17:20)
