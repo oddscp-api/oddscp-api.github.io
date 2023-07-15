@@ -305,7 +305,7 @@
           "WebSocket [Обновление коэффициентов]"
         ],
         "summary": "Получение и обновление коэффицентов",
-        "description": "__WebSocket документация доступна по адресу <a href=\"https://oddscorp.gitbook.io/websocket/\">https://oddscorp.gitbook.io/websocket/</a>__<br><br>",
+        "description": "__WebSocket документация доступна по адресу - <a href=\"https://oddscorp.gitbook.io/websocket/\">https://oddscorp.gitbook.io/websocket/</a>__<br><br>",
         "operationId": "getKoef",
         "responses": {
           "200": {
