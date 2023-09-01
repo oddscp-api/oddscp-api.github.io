@@ -785,19 +785,19 @@ components:
         BK1_score: 1:1 (19:25 25:23 17:20)
         BK1_event_meta: ''
         BK1_market_meta: '{"betId":"687799702","name":"Game Lines|Zenit Novosibirsk-pro|Winner"}'
-        BK2_bet: WIN__P2
+        BK2_bet: WIN__P1
         BK2_bet_type: WIN
         BK2_alt_bet: ''
-        BK2_cf: 1.5
-        BK2_event_id: FONVB5B99B3C9A2B
-        BK2_event_native_id: '20190837'
-        BK2_game: Зенит Новосибирск-про vs Изумруд Бердск-про
-        BK2_href: https://www.fonbet.ru//sport/event/volleyball/45580/20190837/
-        BK2_league: Россия. Лига Про. Новосибирск
-        BK2_name: fonbet
-        BK2_score: 1:1 (19:25 25:23 17:20*)
+        BK2_cf: 2.75
+        BK2_event_id: 
+        BK2_event_native_id: ''
+        BK2_game: 
+        BK2_href: 
+        BK2_league: 
+        BK2_name: valuebets
+        BK2_score: 
         BK2_event_meta: ''
-        BK2_market_meta: '{"isHeader":true,"fieldName":"v2","factor_id":923}'
+        BK2_market_meta: ''
         alive_sec: 32
         valuing_data: '{
             "cfs": {
