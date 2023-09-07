@@ -738,7 +738,7 @@
           "PREMATCH / LIVE-События"
         ],
         "summary": "Получить группу связанных событий",
-        "description": "Запрос для получения всех событий с разных букмекеров, которые\nобъединены в одну группу",
+        "description": "Запрос для получения всех событий с разных букмекеров, которые\nобъединены в одну группу<br><br>__Пример запроса&#58;__ <i>http&#58;//api.oddscp.com&#58;8111/groups/23313791?show_names=1&token=afdjd8fd8rjkfu7fa7f3 </i> <br>",
         "operationId": "getGroup",
         "parameters": [
           {
@@ -750,6 +750,15 @@
               "type": "string"
             },
             "example": 182220
+          },
+          {
+            "name": "show_names",
+            "description": "указать \"**&show_names=1**\" для отображения имен сгруппированных событий.",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            },
+            "example": 0
           }
         ],
         "responses": {
