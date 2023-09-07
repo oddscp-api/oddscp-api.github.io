@@ -753,7 +753,7 @@
           },
           {
             "name": "show_names",
-            "description": "указать \"**?show_names=1**\" для отображения имен сгруппированных событий.",
+            "description": "Указать \"**?show_names=1**\" для отображения имен сгруппированных событий.",
             "in": "query",
             "schema": {
               "type": "number"
