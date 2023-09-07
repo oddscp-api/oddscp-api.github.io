@@ -761,13 +761,17 @@
                   "type": "object",
                   "example": {
                     "ids": {
-                      "olimp": "OLPTT17EECABA264",
-                      "1xbet": "XBTTTDFE64657483",
-                      "winline": "WLNTTDE327C98125"
+                      "lootbet": "LBTSCC7E1368C8B2",
+                      "cbetgg": "CBGSC38C2AA10324",
+                      "bet365": "BT3SC88126EEE8F0",
+                      "parimatch_by": "PABSCCCA809DB401"
                     },
                     "status": "OK",
                     "event_names": {
-                      "LBTSCC7E1368C8B2": "Abingdon United (w) vs Maidenhead United (w)"
+                      "LBTSCC7E1368C8B2": "Abingdon United (w) vs Maidenhead United (w)",
+                      "CBGSC38C2AA10324": "Abingdon United W. vs Maidenhead United W.",
+                      "BT3SC88126EEE8F0": "Abingdon United Women vs Maidenhead Utd Women",
+                      "PABSCCCA809DB401": "Абингдон Юн(жен) vs Мэйденхэд Юн(жен)"
                     }
                   }
                 }
