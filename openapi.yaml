@@ -7,7 +7,7 @@ info:
     событиях
   version: 0.1.1
 servers:
-- url: http://212.109.216.193:8111
+- url: http://api.oddscp.com:8111
 tags:
 - name: Sport
   x-displayName: Sport
