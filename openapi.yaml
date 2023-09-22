@@ -1,1793 +1,1451 @@
-{
-  "openapi": "3.0.0",
-  "info": {
-    "title": "oddscp.com: LIVE Odds HTTP API",
-    "description": "API для получения букмекерских вилок и информации о LIVE спортивных\nсобытиях",
-    "version": "0.1.1"
-  },
-  "servers": [
-    {
-      "url": "http://api.oddscp.com:8111"
-    }
-  ],
-  "tags": [
-    {
-      "name": "Sport",
-      "x-displayName": "Sport",
-      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Sport\" />"
-    },
-    {
-      "name": "Bookmaker",
-      "x-displayName": "Bookmaker",
-      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Bookmaker\" />"
-    },
-    {
-      "name": "BetType",
-      "x-displayName": "BetType",
-      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/BetType\" />"
-    },
-    {
-      "name": "Fork",
-      "x-displayName": "Fork",
-      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Fork\" />"
-    },
-    {
-      "name": "Event",
-      "x-displayName": "Event",
-      "description": "Событие на определенном букмекере\n<SchemaDefinition schemaRef=\"#/components/schemas/Event\" />\n"
-    },
-    {
-      "name": "Market",
-      "x-displayName": "Market",
-      "description": "<SchemaDefinition schemaRef=\"#/components/schemas/Market\" />"
-    }
-  ],
-  "x-tagGroups": [
-    {
-      "name": "Основные",
-      "tags": [
-        "PREMATCH / LIVE-вилки",
-        "PREMATCH / LIVE-События",
-        "WebSocket [Обновление коэффициентов]",
-        "Валуи [Value bets]",
-        "Вспомогательное"
-      ]
-    },
-    {
-      "name": "Модели",
-      "tags": [
-        "Sport",
-        "Bookmaker",
-        "BetType",
-        "Fork",
-        "Event",
-        "Market"
-      ]
-    }
-  ],
-  "paths": {
-    "/valuebets": {
-      "get": {
-        "tags": [
-          "Валуи [Value bets]"
-        ],
-        "description": "Возвращает список валуев по заданным параметрам<br><br>__Пример запроса&#58;__ <i>http&#58;//api.oddscp.com&#58;8111/valuebets?bk_name=fonbet&alive_sec=2&get_market_data=2&token=gd7a8fdggrtfg34b6c </i> <br><br>__При расчетах необходимо использовать данные только из \"valuing_data\".__<br><details><summary>**<i>Примеры и описание формирования счета (развернуть):</i>**</summary><p><br>**H** - половина<br>**G** - гейм<br>**M** - карта (киберспорт)<br>**R** - раунд<br>**T** - тайм<br>**S** - сет<br>**P** - период<br>**I** - иннинг (бейсбол)<br>**Q** - четверь<br><br>**OT** - овертайм (overtime - дополнительное время)<br>**B** - брейк (перерыв)<br>__*__ - чья подача (Бадминтон, Волейбол)<br><br><br>**Примеры:**<br>**1:0 (6:3)|T2,B**<br><br>**B** - значит перерыв (break) перед 2 таймом;<br><br>—————<br>**1:0 (6:3 0:0)|S2,B**<br><br>**\"1:0\"** - текущий счет;<br>**\"6:3\"** - в первом сете;<br>**\"0:0\"** - это счет во втором сете;<br>**S2,B** - сейчас брейк перед вторым сетом;<br><br>—————<br>**1:1 (0:1 1:0) 68`**<br><br>**\"68\"** - минуты игры с начала матча;<br>**\"1:1\"** - текущий счет;<br>**\"(0:1 1:0)\"** - идет второй тайм. В первом тайме забила 2-ая команда, а во втором тайме забила 1-ая команда;</p></details><details><summary>**<i>Описание составляющих meta (развернуть):</i>**</summary><p><br>Мета может меняться от спорта и от бк! Будьте внимательны!<br>Мы обычно старое не убираем, а лишь добавляем новое. Стараемся всегда сообщать об изменениях через наш официальный телеграм-канал.<br>Что-то из мета может быть не актуально или если у Вас есть какие-то вопросы, то пожалуйста уточнятйте у тех. поддержки.<br><br>Мы можем добавить в мета что-то новое, если Вам это необходимо. В мета ограничение 250 символов, но постараемся это уместить.<br><br>—————<br>**Fonbet:**<br>**live_delay** - переменная напрямую из \"внутренностей\" фонбета. Можете не обращать на него внимания.<br>Чем выше live_delay, тем дольше будет приниматься ставка. Есть ставки, которые принимаются моментально - на них live_delay=0 или 1.<br>Стандартный 3-4, но бывают такие матчи, где 5-6.<br><br>—————<br>**Unibet**<br>**boId** - это id группы ставок<br>**id** - это непосредственно id ставки<br>**event_id** -  eId<br><br>—————<br>**Efbet**<br>**pu** - currentpriceup<br>**pd** - currentpricedown<br>**shc** - selectionhashcode<br>**m**n - marketname<br>**im** - idfomarket<br>**et** - eachwayterms<br>**prt** - pricetypes (есть везде)<br>**hv** - hadvalue (кое где не задано, поэтому что бы не пропадало сделали, его как null если его нет). HV - не всегда А, вообще это значение Home/Away/Draw, есть в некоторых ставках, но не во всех. По больше части там, где это критично для их внутренней идентификаии ставок.<br><br>На уровне ивента добавлен ключ в мету orig_name - имя ивента, как оно на апи в ефбете.<br><br>—————<br>**Семейство 1xbet (melbet/1xstavka)**<br>**NB** - nameBet/name_bet<br>**NG** - nameGroup/name_group<br>**C** - Price<br>**G** - Bet gourp id<br>**P** - идентификатор ставки, используется в форах/тоталах<br>**T** - идентификатор ставки<br>**SSI** - SubsportID<br>**GN** - gameNum<br>**ei** - event_id<br>**gi** - game_id<br><br>—————<br>**888**<br>**s_name** - название спорта на сайте<br><br>—————<br>**Pinnacle**<br>**\"key\":\"s;0;s;0.25** - это marketKey, конкретно этот - фора в игре 0.25<br>**\"dest\"** - может быть “null”, если у исхода нет данного поля<br>**\"dest\\\":\\\"under\\\"** - новый ключ для TU (TotalUnder)<br>**\"dest\\\":\\\"over\\\"** - новый ключ для TO (TotalOver)<br>**\"points\"** - для фор и тоталов с оригинальным значением из API, т.е. без учёта знака и счёта для фор. Для других видов ставок поля 'points' не добавляется в мету.<br><br>—————<br>**pari-match (Parimatch_com/Parimatch_ru)**<br>Париматч ру парсится с parimatch.ru (он же до недавнего времени new.parimatch.com). https://air2.parimatch.com представляет собой старую версию parimatch.ru (то есть это по сути и есть старая версия того же париматч ру). Поэтому у них очень похожая в принципе мета. То есть, parimatch com основан непостредственно на parimatch.com, new_parimatch_ru основан на parimatch.ru<br><br>—————<br>**bet365**<br>**visible_ru** - false/true, флаг \"видимости\". Информация о «видимости» матча с  рф-версии сайта. Это определяется по нескольким критериям, они не на поверхности.<br>**true** - матч видно<br>**false** - матч недоступен для рф версии.<br>Информация доступна в мета-данных по самому событию<br><br>—————<br>**eurobet**<br>**betGroup** - верхняя группа<br>**oggGroup** - то что внутри блока<br>**odd** - текст третьего уровня<br>**resultCode** - id кнопки они там по порядку идут, в html этого нет, но с этой метой в целом ставку можно найти без особых проблем<br></p></details><br>",
-        "summary": "Получить список валуев",
-        "operationId": "getValueBets",
-        "parameters": [
-          {
-            "name": "bet_types",
-            "description": "Тип ставок в валуе<br> Актуальный список типов ставок с подробным описанием находится по этой ссылке - <a href=\"http://api.oddscp.com:8111/static/possible_bets_list.txt\">http://api.oddscp.com:8111/static/possible_bets_list.txt</a>",
-            "in": "query",
-            "style": "form",
-            "explode": false,
-            "example": "HALF_WIN,WIN",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/BetType"
-              }
-            }
-          },
-          {
-            "name": "sport",
-            "description": "Спорт",
-            "in": "query",
-            "style": "form",
-            "explode": false,
-            "example": "tennis,soccer",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          {
-            "name": "event_id",
-            "description": "Получение валуев только по указанному id события",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            },
-            "example": 181993
-          },
-          {
-            "name": "bk_name",
-            "description": "Список букмекерских контор на которых ищем валуи",
-            "in": "query",
-            "required": true,
-            "style": "form",
-            "explode": false,
-            "example": "fonbet,olimp,bet365",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          {
-            "name": "min_cf",
-            "description": "Минимальный коэффициент",
-            "in": "query",
-            "example": 1.1,
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "max_cf",
-            "description": "Максимальный коэффициент",
-            "in": "query",
-            "example": 3.5,
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "min_fi",
-            "description": "Минимальный % валуя",
-            "in": "query",
-            "example": -1,
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "max_fi",
-            "description": "Максимальный % валуя",
-            "in": "query",
-            "example": 10,
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "alive_sec",
-            "description": "Минимальное время существования валуя для указанного процента (-1%)",
-            "in": "query",
-            "schema": {
-              "type": "number",
-              "default": 0
-            }
-          },
-          {
-            "name": "alive_prc",
-            "description": "Процент валуя, относительно которого рассчитывается alive_sec",
-            "in": "query",
-            "schema": {
-              "type": "number",
-              "default": -1,
-              "enum": [
-                -1,
-                0,
-                0.5,
-                1,
-                1.5,
-                2,
-                2.5,
-                3
-              ]
-            }
-          },
-          {
-            "name": "get_market_data",
-            "description": "Включить отображение валуйных расчетов. Появятся valuing_data включающий себя, при __\"1\"__ - коэффициенты на других бк, валуйные расчеты. __\"2\"__ - коэффициенты на других бк, валуйные расчеты, счет на других бк и последнее время изменение коэфицента.<br> Для видов спорта soccer, table-tennis, tennis, volleyball - включена обязательная сверка счета. В расчетах участвуют только те БК счет на которых совпадает с основной БК. Для других видов спорта обязательная сверка счета отсутствует. <details><summary><strong>Описание значений в valuing_data&#58; (развернуть)</strong></summary><p><br><strong>need_cfs</strong> - массив из коэффициентов, которые принимают участие в расчётах ниже<br><br><strong>cf_orig</strong> - это искомый кф (по той самой ставке, которую мы передали в урле)<br><strong>cf_mdn</strong> - медианный кф по всем бк, включая запрошенную<br><strong>cf_avg</strong> - средний кф (среднее арифметическое)<br><strong>cf_avg2 и cf_mdn2</strong> - это тестовые данные, их можете пропустить<br><strong>diff_avg</strong> - это разница cf_avg - cf_orig (в % разумеется)<br><strong>diff_mdn</strong> - разница cf_mdn - cf_orig<br><strong>min_max_dst</strong> - это разница в % между мин и макс кф по всем бк<br><strong>total_cnt</strong> - количество кф<br><strong>total_pos</strong> - это расположение запрошенного кф на линейке отсортированных кф (если наш кф лучший, то значение будет 1.0, а если худший, то 0.0)<br><strong>better_cnt</strong> - количество кф, которые >= текущего<br><strong>aw_avg</strong> - перевес с учетом маржи (aw = <перевес вероятностей> - <маржа>). Cреднее арифм.<br><strong>aw_mdn</strong> - перевес с учетом маржи (aw = <перевес вероятностей> - <маржа>). Медианное.<br><strong>ow_avg</strong> - ожидаемый ROI (ow = <перевес вероятностей>\\*2 - <маржа>) Cреднее арифм.<br><strong>ow_mdn</strong> - ожидаемый ROI (ow = <перевес вероятностей>\\*2 - <маржа>). Медианное.<br><strong>min_aw</strong> - перевес с учетом маржи (aw = <перевес> - <маржа>). Наименьшее.<br><strong>min_ow</strong> - ожидаемый ROI (ow = <перевес>\\*2 - <маржа>). Наименьшее.<br><strong>min_diff</strong> - это разница cf_(наименьшего) - cf_orig<br><strong>ow2_avg</strong> - в основе расчёта лежит перевес размеров выигрышей - по формуле (CF2 - CF1)/CF1. Cреднее арифм.<br><strong>ow2_mdn</strong> - в основе расчёта лежит перевес размеров выигрышей - по формуле (CF2 - CF1)/CF1. Медианное.<br><br><strong>Перевес вероятностей</strong> - считается по формуле (1/CF1 - 1/CF2)<br><br><strong>Внутри массива valuing_data.cfs следующие данные по каждой бк&#58;</strong><br>- Текущий кф<br>- Сколько секунд назад кф изменился<br>- Текущий счёт в матче<br>- Маржа. Вот простая формула расчёта маржи&#58; <a href=\"http&#58;//prntscr.com/vmgtfj\">http&#58;//prntscr.com/vmgtfj</a> (<a href=\"https&#58;//www.championat.com/bets/article-3993207-chto-takoe-marzha-v-stavkah-na-sport-kak-rasschitat-stavki-marzha-bukmekera-primer-onlajn.html#&#58;~&#58;text=%D0%9C%D0%B0%D1%80%D0%B6%D0%B0%20%D0%B2%20%D0%B1%D1%83%D0%BA%D0%BC%D0%B5%D0%BA%D0%B5%D1%80%D1%81%D0%BA%D0%BE%D0%B9%20%D0%BA%D0%BE%D0%BD%D1%82%D0%BE%D1%80%D0%B5%20%E2%80%94%20%D0%BA%D0%BE%D0%BC%D0%B8%D1%81%D1%81%D0%B8%D1%8F,%D0%BF%D1%80%D0%B8%20%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D0%B0%D1%85%20%D0%BD%D0%B0%20%D1%80%D0%B0%D0%B2%D0%BD%D0%BE%D0%B2%D0%B5%D1%80%D0%BE%D1%8F%D1%82%D0%BD%D1%8B%D0%B5%20%D0%B8%D1%81%D1%85%D0%BE%D0%B4%D1%8B.\">источник</a>)</p></details><br>",
-            "in": "query",
-            "schema": {
-              "type": "number",
-              "default": 2,
-              "enum": [
-                1,
-                2
-              ]
-            },
-            "example": 2
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Возвращает массив valuebets",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Value"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "422": {
-            "$ref": "#/components/responses/MissingParameterError"
-          }
-        }
-      }
-    },
-    "/values/get_market_data/{BK1_event_id}/{BK1_bet}": {
-      "get": {
-        "tags": [
-          "Валуи [Value bets]"
-        ],
-        "summary": "Получить детали валуя",
-        "description": "Запрос для получения подробных деталей по отдельному валую (по ID события на бк и ставке). Вы увидите - коэффициенты на других бк, валуйные расчеты, счет на других бк и последнее время изменение коэфицента.<br><br>\n**Данный вид уточняющего запроса возможен только за дополнительную плату!!! Пожалуйста уточняйте подробности у поддержки.**\n<br><br>\n**Пример уточняющего запроса для валуя:** http://api.oddscp.com:8111/values/get_market_data/BT3SCDD314B746FF/WIN__P1?&token=afdjd8fd8rjkfu7fa7f3 <br><br>**<a href=\"https://oddscp-api.github.io/#operation/getBookmakers\"><i>&#9654; Список всех букмекеров и их сокращений в параметре \"CFS\" (открыть)</i></a>**<details><summary><strong><i>Описание значений в валуйных расчетах (развернуть):</i></strong></summary><p><br><strong>need_cfs</strong> - массив из коэффициентов, которые принимают участие в расчётах ниже<br><br><strong>cf_orig</strong> - это искомый кф (по той самой ставке, которую мы передали в урле)<br><strong>cf_mdn</strong> - медианный кф по всем бк, включая запрошенную<br><strong>cf_avg</strong> - средний кф (среднее арифметическое)<br><strong>cf_avg2 и cf_mdn2</strong> - это тестовые данные, их можете пропустить<br><strong>diff_avg</strong> - это разница cf_avg - cf_orig (в % разумеется)<br><strong>diff_mdn</strong> - разница cf_mdn - cf_orig<br><strong>min_max_dst</strong> - это разница в % между мин и макс кф по всем бк<br><strong>total_cnt</strong> - количество кф<br><strong>total_pos</strong> - это расположение запрошенного кф на линейке отсортированных кф (если наш кф лучший, то значение будет 1.0, а если худший, то 0.0)<br><strong>better_cnt</strong> - количество кф, которые >= текущего<br><strong>aw_avg</strong> - перевес с учетом маржи (aw = <перевес вероятностей> - <маржа>). Cреднее арифм.<br><strong>aw_mdn</strong> - перевес с учетом маржи (aw = <перевес вероятностей> - <маржа>). Медианное.<br><strong>ow_avg</strong> - ожидаемый ROI (ow = <перевес вероятностей>\\*2 - <маржа>) Cреднее арифм.<br><strong>ow_mdn</strong> - ожидаемый ROI (ow = <перевес вероятностей>\\*2 - <маржа>). Медианное.<br><strong>min_aw</strong> - перевес с учетом маржи (aw = <перевес> - <маржа>). Наименьшее.<br><strong>min_ow</strong> - ожидаемый ROI (ow = <перевес>\\*2 - <маржа>). Наименьшее.<br><strong>min_diff</strong> - это разница cf_(наименьшего) - cf_orig<br><strong>ow2_avg</strong> - в основе расчёта лежит перевес размеров выигрышей - по формуле (CF2 - CF1)/CF1. Cреднее арифм.<br><strong>ow2_mdn</strong> - в основе расчёта лежит перевес размеров выигрышей - по формуле (CF2 - CF1)/CF1. Медианное.<br><br><strong>Перевес вероятностей</strong> - считается по формуле (1/CF1 - 1/CF2)<br><br><strong>Внутри массива valuing_data.cfs следующие данные по каждой бк&#58;</strong><br>- Текущий кф<br>- Сколько секунд назад кф изменился<br>- Текущий счёт в матче<br>- Маржа. Вот простая формула расчёта маржи&#58; <a href=\"http&#58;//prntscr.com/vmgtfj\">http&#58;//prntscr.com/vmgtfj</a> (<a href=\"https&#58;//www.championat.com/bets/article-3993207-chto-takoe-marzha-v-stavkah-na-sport-kak-rasschitat-stavki-marzha-bukmekera-primer-onlajn.html#&#58;~&#58;text=%D0%9C%D0%B0%D1%80%D0%B6%D0%B0%20%D0%B2%20%D0%B1%D1%83%D0%BA%D0%BC%D0%B5%D0%BA%D0%B5%D1%80%D1%81%D0%BA%D0%BE%D0%B9%20%D0%BA%D0%BE%D0%BD%D1%82%D0%BE%D1%80%D0%B5%20%E2%80%94%20%D0%BA%D0%BE%D0%BC%D0%B8%D1%81%D1%81%D0%B8%D1%8F,%D0%BF%D1%80%D0%B8%20%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D0%B0%D1%85%20%D0%BD%D0%B0%20%D1%80%D0%B0%D0%B2%D0%BD%D0%BE%D0%B2%D0%B5%D1%80%D0%BE%D1%8F%D1%82%D0%BD%D1%8B%D0%B5%20%D0%B8%D1%81%D1%85%D0%BE%D0%B4%D1%8B.\">источник</a>)</p></details><details><summary>**<i>Примеры и описание формирования счета (развернуть):</i>**</summary><p><br>**H** - половина<br>**G** - гейм<br>**M** - карта (киберспорт)<br>**R** - раунд<br>**T** - тайм<br>**S** - сет<br>**P** - период<br>**I** - иннинг (бейсбол)<br>**Q** - четверь<br><br>**OT** - овертайм (overtime - дополнительное время)<br>**B** - брейк (перерыв)<br>__*__ - чья подача (Бадминтон, Волейбол)<br><br><br>**Примеры:**<br>**1:0 (6:3)|T2,B**<br><br>**B** - значит перерыв (break) перед 2 таймом;<br><br>—————<br>**1:0 (6:3 0:0)|S2,B**<br><br>**\"1:0\"** - текущий счет;<br>**\"6:3\"** - в первом сете;<br>**\"0:0\"** - это счет во втором сете;<br>**S2,B** - сейчас брейк перед вторым сетом;<br><br>—————<br>**1:1 (0:1 1:0) 68`**<br><br>**\"68\"** - минуты игры с начала матча;<br>**\"1:1\"** - текущий счет;<br>**\"(0:1 1:0)\"** - идет второй тайм. В первом тайме забила 2-ая команда, а во втором тайме забила 1-ая команда;</p></details>",
-        "operationId": "getValuebet",
-        "parameters": [
-          {
-            "name": "BK1_event_id",
-            "description": "Идентификатор события на БК",
-            "required": true,
-            "in": "path",
-            "example": "BT3SCDD314B746FF",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "BK1_bet",
-            "description": "Ставка на БК",
-            "required": true,
-            "in": "path",
-            "example": "WIN__P1",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "sf",
-            "description": "Включение сверки счета между бк, т.е. исключение из валуйных расчетов букмекерских контор, которые еще не обновили счет. По умолчанию у валуев отключена сверка счета, что бы исключить ошибочные расчеты для валуев из-за задержки обновления данных у БК. Указать \"**&sf=1**\" для использования в расчетах только бк с корректным счетом.",
-            "in": "query",
-            "schema": {
-              "type": "number",
-              "default": 0,
-              "enum": [
-                0,
-                1
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Возвращает расчеты для валуя",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValueData"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "description": "Валуй не найден",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/MissingParameterError"
-          }
-        }
-      }
-    },
-    "/koef": {
-      "get": {
-        "tags": [
-          "WebSocket [Обновление коэффициентов]"
-        ],
-        "summary": "Получение и обновление коэффицентов",
-        "description": "__WebSocket документация доступна по адресу - <a href=\"https://oddscorp.gitbook.io/websocket/\">https://oddscorp.gitbook.io/websocket/</a>__<br><br>",
-        "operationId": "getKoef",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/sports": {
-      "get": {
-        "tags": [
-          "Вспомогательное"
-        ],
-        "summary": "Виды спорта",
-        "description": "Возвращает список доступных видов спорта с описанием",
-        "operationId": "getSports",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Sport"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      }
-    },
-    "/bookmakers": {
-      "get": {
-        "tags": [
-          "Вспомогательное"
-        ],
-        "summary": "Букмекеры",
-        "description": "Возвращает список доступных букмекеров с описанием. В список войдут\nтолько те букмекеры, которые были запрошены/оплачены в Вашем тарифе.",
-        "operationId": "getBookmakers",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Bookmaker"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      }
-    },
-    "/forks": {
-      "get": {
-        "tags": [
-          "PREMATCH / LIVE-вилки"
-        ],
-        "description": "Возвращает список PREMATCH / LIVE-вилок по заданным параметрам<br><br>__Пример запроса&#58;__ <i>http&#58;//api.oddscp.com&#58;8111/forks?bk2_name=pinnacle,bet365,fonbet&min_fi=1&token=afdjd8fd8rjkfu7fa7f3 </i> <br><details><summary>**<i>Примеры и описание формирования счета (развернуть):</i>**</summary><p><br>**H** - половина<br>**G** - гейм<br>**M** - карта (киберспорт)<br>**R** - раунд<br>**T** - тайм<br>**S** - сет<br>**P** - период<br>**I** - иннинг (бейсбол)<br>**Q** - четверь<br><br>**OT** - овертайм (overtime - дополнительное время)<br>**B** - брейк (перерыв)<br>__*__ - чья подача (Бадминтон, Волейбол)<br><br><br>**Примеры:**<br>**1:0 (6:3)|T2,B**<br><br>**B** - значит перерыв (break) перед 2 таймом;<br><br>—————<br>**1:0 (6:3 0:0)|S2,B**<br><br>**\"1:0\"** - текущий счет;<br>**\"6:3\"** - в первом сете;<br>**\"0:0\"** - это счет во втором сете;<br>**S2,B** - сейчас брейк перед вторым сетом;<br><br>—————<br>**1:1 (0:1 1:0) 68`**<br><br>**\"68\"** - минуты игры с начала матча;<br>**\"1:1\"** - текущий счет;<br>**\"(0:1 1:0)\"** - идет второй тайм. В первом тайме забила 2-ая команда, а во втором тайме забила 1-ая команда;</p></details><details><summary>**<i>Описание составляющих meta (развернуть):</i>**</summary><p><br>Мета может меняться от спорта и от бк! Будьте внимательны!<br>Мы обычно старое не убираем, а лишь добавляем новое. Стараемся всегда сообщать об изменениях через наш официальный телеграм-канал.<br>Что-то из мета может быть не актуально или если у Вас есть какие-то вопросы, то пожалуйста уточнятйте у тех. поддержки.<br><br>Мы можем добавить в мета что-то новое, если Вам это необходимо. В мета ограничение 250 символов, но постараемся это уместить.<br><br>—————<br>**Fonbet:**<br>**live_delay** - переменная напрямую из \"внутренностей\" фонбета. Можете не обращать на него внимания.<br>Чем выше live_delay, тем дольше будет приниматься ставка. Есть ставки, которые принимаются моментально - на них live_delay=0 или 1.<br>Стандартный 3-4, но бывают такие матчи, где 5-6.<br><br>—————<br>**Unibet**<br>**boId** - это id группы ставок<br>**id** - это непосредственно id ставки<br>**event_id** -  eId<br><br>—————<br>**Efbet**<br>**pu** - currentpriceup<br>**pd** - currentpricedown<br>**shc** - selectionhashcode<br>**m**n - marketname<br>**im** - idfomarket<br>**et** - eachwayterms<br>**prt** - pricetypes (есть везде)<br>**hv** - hadvalue (кое где не задано, поэтому что бы не пропадало сделали, его как null если его нет). HV - не всегда А, вообще это значение Home/Away/Draw, есть в некоторых ставках, но не во всех. По больше части там, где это критично для их внутренней идентификаии ставок.<br><br>На уровне ивента добавлен ключ в мету orig_name - имя ивента, как оно на апи в ефбете.<br><br>—————<br>**Семейство 1xbet (melbet/1xstavka)**<br>**NB** - nameBet/name_bet<br>**NG** - nameGroup/name_group<br>**C** - Price<br>**G** - Bet gourp id<br>**P** - идентификатор ставки, используется в форах/тоталах<br>**T** - идентификатор ставки<br>**SSI** - SubsportID<br>**GN** - gameNum<br>**ei** - event_id<br>**gi** - game_id<br><br>—————<br>**888**<br>**s_name** - название спорта на сайте<br><br>—————<br>**Pinnacle**<br>**\"key\":\"s;0;s;0.25** - это marketKey, конкретно этот - фора в игре 0.25<br>**\"dest\"** - может быть “null”, если у исхода нет данного поля<br>**\"dest\\\":\\\"under\\\"** - новый ключ для TU (TotalUnder)<br>**\"dest\\\":\\\"over\\\"** - новый ключ для TO (TotalOver)<br>**\"points\"** - для фор и тоталов с оригинальным значением из API, т.е. без учёта знака и счёта для фор. Для других видов ставок поля 'points' не добавляется в мету.<br><br>—————<br>**pari-match (Parimatch_com/Parimatch_ru)**<br>Париматч ру парсится с parimatch.ru (он же до недавнего времени new.parimatch.com). https://air2.parimatch.com представляет собой старую версию parimatch.ru (то есть это по сути и есть старая версия того же париматч ру). Поэтому у них очень похожая в принципе мета. То есть, parimatch com основан непостредственно на parimatch.com, new_parimatch_ru основан на parimatch.ru<br><br>—————<br>**bet365**<br>**visible_ru** - false/true, флаг \"видимости\". Информация о «видимости» матча с  рф-версии сайта. Это определяется по нескольким критериям, они не на поверхности.<br>**true** - матч видно<br>**false** - матч недоступен для рф версии.<br>Информация доступна в мета-данных по самому событию<br><br>—————<br>**eurobet**<br>**betGroup** - верхняя группа<br>**oggGroup** - то что внутри блока<br>**odd** - текст третьего уровня<br>**resultCode** - id кнопки они там по порядку идут, в html этого нет, но с этой метой в целом ставку можно найти без особых проблем<br></p></details><br>",
-        "summary": "Получить список PREMATCH / LIVE-вилок",
-        "operationId": "getForks",
-        "parameters": [
-          {
-            "name": "live",
-            "description": "Получение **PREMATCH-вилок**. Указать \"**&live=0**\" для получения прематч вилок. По умолчанию запрашиваются LIVE-вилки, т.е. для LIVE-вилок этот параметр указывать не надо.",
-            "in": "query",
-            "schema": {
-              "type": "number"
-            },
-            "example": 0
-          },
-          {
-            "name": "bet_types",
-            "description": "Тип ставок в вилке.<br> Актуальный список типов ставок с подробным описанием находится по этой ссылке - <a href=\"http://api.oddscp.com:8111/static/possible_bets_list.txt\">http://api.oddscp.com:8111/static/possible_bets_list.txt</a>",
-            "in": "query",
-            "style": "form",
-            "explode": false,
-            "example": "HALF_WIN,WIN",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/BetType"
-              }
-            }
-          },
-          {
-            "name": "sport",
-            "description": "Спорт",
-            "in": "query",
-            "style": "form",
-            "explode": false,
-            "example": "tennis,soccer",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          {
-            "name": "event_id",
-            "description": "Получение вилок только по указанному id события",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            },
-            "example": 181993
-          },
-          {
-            "name": "bk2_name",
-            "description": "Список букмекеров, участвующих в вилке",
-            "in": "query",
-            "required": true,
-            "style": "form",
-            "explode": false,
-            "example": "fonbet,olimp,bet365",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          },
-          {
-            "name": "bk_name",
-            "description": "Букмекер, который обязательно должен участвовать в вилке",
-            "in": "query",
-            "example": "fonbet",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "min_cf",
-            "description": "Минимальный коэффициент",
-            "in": "query",
-            "example": 1.1,
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "max_cf",
-            "description": "Максимальный коэффициент",
-            "in": "query",
-            "example": 3.5,
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "min_fi",
-            "description": "Минимальный % вилки",
-            "in": "query",
-            "example": -1,
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "max_fi",
-            "description": "Максимальный % вилки",
-            "in": "query",
-            "example": 10,
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "is_middles",
-            "description": "Коридоры в выдачи. -1 - без коридоров. 0 - вилки и коридоры.\n1 - только коридоры",
-            "in": "query",
-            "schema": {
-              "type": "number",
-              "default": 0,
-              "enum": [
-                -1,
-                0,
-                1
-              ]
-            }
-          },
-          {
-            "name": "alive_sec",
-            "description": "Минимальное время существования вилки для указанного процента (-1%)",
-            "in": "query",
-            "schema": {
-              "type": "number",
-              "default": 0
-            }
-          },
-          {
-            "name": "alive_prc",
-            "description": "Процент вилки, относительно которого рассчитывается alive_sec",
-            "in": "query",
-            "schema": {
-              "type": "number",
-              "default": -1,
-              "enum": [
-                -1,
-                0,
-                0.5,
-                1,
-                1.5,
-                2,
-                2.5,
-                3
-              ]
-            }
-          },
-          {
-            "name": "get_cfs",
-            "description": "(Параметр доступен только за доп. оплату, цену уточняте у тех. поддержки). Выдает список коэффициентов для текущего маркета на всех бк в данный момент и выдает текущий счёт на вилочном матче. В ответе появятся 3 ключа - cfs1, cfs2, all_scores. <details> <summary>**<i>Способы применения (развернуть):</i>**</summary> <p><i>В первую очередь, следует использовать для определения \"инициатора вилки\".  В этом случае вам следует пройтись по всему списку БК и рассчитать вилки по стандартной формуле (мы с этим поможем, если её у вас нет) от нужного вам процента.<br><br> Также, следует обязательно учесть \"зеркала\" - оптимальный вариант взять самый высокий кф из всех зеркальных контор. Сам список зеркал можно получить используя данные метода /bookmakers.<br><br> Помимо определения \"инициатора\", эти данные можно использовать для более глубокой кастомизации ваших стратегий, или проще говоря - фильтровать общий поток вилок. Как именно? Тут уже всё остаётся на усмотрение вашей собственной фантазии и вашего опыта.<br><br> Наличие текущего счёта на вилочном матче по всем БК позволит вам более детально анализировать текущую ситуацию и быть более уверенными в тех ставках, которые вы совершаете.</i></p> </details>",
-            "in": "query",
-            "example": 1,
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "score_filter",
-            "description": "Отключение сверки счета между БК. По умолчанию у вилок для на soccer и hockey включена сверка счета, что бы избежать ошибочных вилок из-за задержки обновления данных у БК. Для других видов спорта этот параметр не работает. Указать \"**&score_filter=0**\" для отключения сверки счета.",
-            "in": "query",
-            "schema": {
-              "type": "number"
-            },
-            "example": 0
-          },
-          {
-            "name": "show_swap",
-            "description": "Отображать был ли перевернут порядок команд для каждой бк в вилке. В ответе появятся 2 ключа - BK1_event_swapped и BK2_event_swapped. Указать \"**&show_swap=1**\" для включения отображения.",
-            "in": "query",
-            "schema": {
-              "type": "number"
-            },
-            "example": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Возвращает массив Fork",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Fork"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "422": {
-            "$ref": "#/components/responses/MissingParameterError"
-          }
-        }
-      }
-    },
-    "/forks/{fork_id}": {
-      "get": {
-        "tags": [
-          "PREMATCH / LIVE-вилки"
-        ],
-        "summary": "Получить детали вилки",
-        "description": "Запрос для получения подробных деталей по отдельной вилке (по её\nключу)<br><br>\n**Пример запроса prematch вилки:** http://api.oddscp.com:8111/forks/13596cec090d11ac3b?live=0&token=afdjd8fd8rjkfu7fa7f3 (обратите внимание на параметр **live=0**) <br><br>**Пример запроса live вилки:** http://api.oddscp.com:8111/forks/13596cec090d11ac3b?&token=afdjd8fd8rjkfu7fa7f3 <details><summary>**<i>Примеры и описание формирования счета (развернуть):</i>**</summary><p><br>**H** - половина<br>**G** - гейм<br>**M** - карта (киберспорт)<br>**R** - раунд<br>**T** - тайм<br>**S** - сет<br>**P** - период<br>**I** - иннинг (бейсбол)<br>**Q** - четверь<br><br>**OT** - овертайм (overtime - дополнительное время)<br>**B** - брейк (перерыв)<br>__*__ - чья подача (Бадминтон, Волейбол)<br><br><br>**Примеры:**<br>**1:0 (6:3)|T2,B**<br><br>**B** - значит перерыв (break) перед 2 таймом;<br><br>—————<br>**1:0 (6:3 0:0)|S2,B**<br><br>**\"1:0\"** - текущий счет;<br>**\"6:3\"** - в первом сете;<br>**\"0:0\"** - это счет во втором сете;<br>**S2,B** - сейчас брейк перед вторым сетом;<br><br>—————<br>**1:1 (0:1 1:0) 68`**<br><br>**\"68\"** - минуты игры с начала матча;<br>**\"1:1\"** - текущий счет;<br>**\"(0:1 1:0)\"** - идет второй тайм. В первом тайме забила 2-ая команда, а во втором тайме забила 1-ая команда;</p></details><details><summary>**<i>Описание составляющих meta (развернуть):</i>**</summary><p><br>Мета может меняться от спорта и от бк! Будьте внимательны!<br>Мы обычно старое не убираем, а лишь добавляем новое. Стараемся всегда сообщать об изменениях через наш официальный телеграм-канал.<br>Что-то из мета может быть не актуально или если у Вас есть какие-то вопросы, то пожалуйста уточнятйте у тех. поддержки.<br><br>Мы можем добавить в мета что-то новое, если Вам это необходимо. В мета ограничение 250 символов, но постараемся это уместить.<br><br>—————<br>**Fonbet:**<br>**live_delay** - переменная напрямую из \"внутренностей\" фонбета. Можете не обращать на него внимания.<br>Чем выше live_delay, тем дольше будет приниматься ставка. Есть ставки, которые принимаются моментально - на них live_delay=0 или 1.<br>Стандартный 3-4, но бывают такие матчи, где 5-6.<br><br>—————<br>**Unibet**<br>**boId** - это id группы ставок<br>**id** - это непосредственно id ставки<br>**event_id** -  eId<br><br>—————<br>**Efbet**<br>**pu** - currentpriceup<br>**pd** - currentpricedown<br>**shc** - selectionhashcode<br>**m**n - marketname<br>**im** - idfomarket<br>**et** - eachwayterms<br>**prt** - pricetypes (есть везде)<br>**hv** - hadvalue (кое где не задано, поэтому что бы не пропадало сделали, его как null если его нет). HV - не всегда А, вообще это значение Home/Away/Draw, есть в некоторых ставках, но не во всех. По больше части там, где это критично для их внутренней идентификаии ставок.<br><br>На уровне ивента добавлен ключ в мету orig_name - имя ивента, как оно на апи в ефбете.<br><br>—————<br>**Семейство 1xbet (melbet/1xstavka)**<br>**NB** - nameBet/name_bet<br>**NG** - nameGroup/name_group<br>**C** - Price<br>**G** - Bet gourp id<br>**P** - идентификатор ставки, используется в форах/тоталах<br>**T** - идентификатор ставки<br>**SSI** - SubsportID<br>**GN** - gameNum<br>**ei** - event_id<br>**gi** - game_id<br><br>—————<br>**888**<br>**s_name** - название спорта на сайте<br><br>—————<br>**Pinnacle**<br>**\"key\":\"s;0;s;0.25** - это marketKey, конкретно этот - фора в игре 0.25<br>**\"dest\"** - может быть “null”, если у исхода нет данного поля<br>**\"dest\\\":\\\"under\\\"** - новый ключ для TU (TotalUnder)<br>**\"dest\\\":\\\"over\\\"** - новый ключ для TO (TotalOver)<br>**\"points\"** - для фор и тоталов с оригинальным значением из API, т.е. без учёта знака и счёта для фор. Для других видов ставок поля 'points' не добавляется в мету.<br><br>—————<br>**pari-match (Parimatch_com/Parimatch_ru)**<br>Париматч ру парсится с parimatch.ru (он же до недавнего времени new.parimatch.com). https://air2.parimatch.com представляет собой старую версию parimatch.ru (то есть это по сути и есть старая версия того же париматч ру). Поэтому у них очень похожая в принципе мета. То есть, parimatch com основан непостредственно на parimatch.com, new_parimatch_ru основан на parimatch.ru<br><br>—————<br>**bet365**<br>**visible_ru** - false/true, флаг \"видимости\". Информация о «видимости» матча с  рф-версии сайта. Это определяется по нескольким критериям, они не на поверхности.<br>**true** - матч видно<br>**false** - матч недоступен для рф версии.<br>Информация доступна в мета-данных по самому событию<br><br>—————<br>**eurobet**<br>**betGroup** - верхняя группа<br>**oggGroup** - то что внутри блока<br>**odd** - текст третьего уровня<br>**resultCode** - id кнопки они там по порядку идут, в html этого нет, но с этой метой в целом ставку можно найти без особых проблем<br></p></details><br>",
-        "operationId": "getFork",
-        "parameters": [
-          {
-            "name": "fork_id",
-            "description": "Идентификатор вилки",
-            "required": true,
-            "in": "path",
-            "example": "70a5d610dac4c5c1a6",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Возвращает Fork",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Fork"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "description": "Вилка не найдена",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/MissingParameterError"
-          }
-        }
-      }
-    },
-    "/events": {
-      "get": {
-        "tags": [
-          "PREMATCH / LIVE-События"
-        ],
-        "summary": "Получить список всех событий",
-        "description": "Запрос для получения всех событий<details><summary>**<i>Примеры и описание формирования счета (развернуть):</i>**</summary><p><br>**H** - половина<br>**G** - гейм<br>**M** - карта (киберспорт)<br>**R** - раунд<br>**T** - тайм<br>**S** - сет<br>**P** - период<br>**I** - иннинг (бейсбол)<br>**Q** - четверь<br><br>**OT** - овертайм (overtime - дополнительное время)<br>**B** - брейк (перерыв)<br>__*__ - чья подача (Бадминтон, Волейбол)<br><br><br>**Примеры:**<br>**1:0 (6:3)|T2,B**<br><br>**B** - значит перерыв (break) перед 2 таймом;<br><br>—————<br>**1:0 (6:3 0:0)|S2,B**<br><br>**\"1:0\"** - текущий счет;<br>**\"6:3\"** - в первом сете;<br>**\"0:0\"** - это счет во втором сете;<br>**S2,B** - сейчас брейк перед вторым сетом;<br><br>—————<br>**1:1 (0:1 1:0) 68`**<br><br>**\"68\"** - минуты игры с начала матча;<br>**\"1:1\"** - текущий счет;<br>**\"(0:1 1:0)\"** - идет второй тайм. В первом тайме забила 2-ая команда, а во втором тайме забила 1-ая команда;</p></details>",
-        "operationId": "getEvents",
-        "parameters": [
-          {
-            "name": "sport",
-            "description": "Спорт",
-            "in": "query",
-            "example": "soccer,tennis",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "bk_name",
-            "description": "Идентификатор букмекера",
-            "in": "query",
-            "example": "fonbet",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "live",
-            "description": "Получение **PREMATCH-событий**. Указать \"**&live=0**\" для получения прематч событй. По умолчанию запрашиваются LIVE-события, т.е. для LIVE-событий этот параметр указывать не надо.",
-            "in": "query",
-            "schema": {
-              "type": "number"
-            },
-            "example": 0
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Event"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      }
-    },
-    "/events/{bk_event_id}": {
-      "get": {
-        "tags": [
-          "PREMATCH / LIVE-События"
-        ],
-        "summary": "Поиск события на определенном букмекере",
-        "description": "Запрос для поиска определенного события по id или названию<details><summary>**<i>Примеры и описание формирования счета (развернуть):</i>**</summary><p><br>**H** - половина<br>**G** - гейм<br>**M** - карта (киберспорт)<br>**R** - раунд<br>**T** - тайм<br>**S** - сет<br>**P** - период<br>**I** - иннинг (бейсбол)<br>**Q** - четверь<br><br>**OT** - овертайм (overtime - дополнительное время)<br>**B** - брейк (перерыв)<br>__*__ - чья подача (Бадминтон, Волейбол)<br><br><br>**Примеры:**<br>**1:0 (6:3)|T2,B**<br><br>**B** - значит перерыв (break) перед 2 таймом;<br><br>—————<br>**1:0 (6:3 0:0)|S2,B**<br><br>**\"1:0\"** - текущий счет;<br>**\"6:3\"** - в первом сете;<br>**\"0:0\"** - это счет во втором сете;<br>**S2,B** - сейчас брейк перед вторым сетом;<br><br>—————<br>**1:1 (0:1 1:0) 68`**<br><br>**\"68\"** - минуты игры с начала матча;<br>**\"1:1\"** - текущий счет;<br>**\"(0:1 1:0)\"** - идет второй тайм. В первом тайме забила 2-ая команда, а во втором тайме забила 1-ая команда;</p></details>",
-        "operationId": "getEvent",
-        "parameters": [
-          {
-            "name": "bk_event_id",
-            "required": true,
-            "description": "id события",
-            "in": "path",
-            "schema": {
-              "type": "string"
-            },
-            "example": "WLNBS21B94619065"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
+---
+openapi: 3.0.0
+info:
+  title: 'oddscp.com: LIVE Odds HTTP API'
+  description: |-
+    API для получения букмекерских вилок и информации о LIVE спортивных
+    событиях
+  version: 0.1.1
+servers:
+- url: http://api.oddscp.com:8111
+tags:
+- name: Sport
+  x-displayName: Sport
+  description: <SchemaDefinition schemaRef="#/components/schemas/Sport" />
+- name: Bookmaker
+  x-displayName: Bookmaker
+  description: <SchemaDefinition schemaRef="#/components/schemas/Bookmaker" />
+- name: BetType
+  x-displayName: BetType
+  description: <SchemaDefinition schemaRef="#/components/schemas/BetType" />
+- name: Fork
+  x-displayName: Fork
+  description: <SchemaDefinition schemaRef="#/components/schemas/Fork" />
+- name: Event
+  x-displayName: Event
+  description: |
+    Событие на определенном букмекере
+    <SchemaDefinition schemaRef="#/components/schemas/Event" />
+- name: Market
+  x-displayName: Market
+  description: <SchemaDefinition schemaRef="#/components/schemas/Market" />
+x-tagGroups:
+- name: Основные
+  tags:
+  - PREMATCH / LIVE-вилки
+  - PREMATCH / LIVE-События
+  - WebSocket [Обновление коэффициентов]
+  - Валуи [Value bets]
+  - Вспомогательное
+- name: Модели
+  tags:
+  - Sport
+  - Bookmaker
+  - BetType
+  - Fork
+  - Event
+  - Market
+paths:
+  "/valuebets":
+    get:
+      tags:
+      - Валуи [Value bets]
+      description: Возвращает список валуев по заданным параметрам<br><br>__Пример запроса&#58;__ <i>http&#58;//api.oddscp.com&#58;8111/valuebets?bk_name=fonbet&alive_sec=2&get_market_data=2&token=gd7a8fdggrtfg34b6c </i> <br><br>__При расчетах необходимо использовать данные только из "valuing_data".__<br><details><summary>**<i>Примеры и описание формирования счета (развернуть):</i>**</summary><p><br>**H** - половина<br>**G** - гейм<br>**M** - карта (киберспорт)<br>**R** - раунд<br>**T** - тайм<br>**S** - сет<br>**P** - период<br>**I** - иннинг (бейсбол)<br>**Q** - четверь<br><br>**OT** - овертайм (overtime - дополнительное время)<br>**B** - брейк (перерыв)<br>__*__ - чья подача (Бадминтон, Волейбол)<br><br><br>**Примеры:**<br>**1:0 (6:3)|T2,B**<br><br>**B** - значит перерыв (break) перед 2 таймом;<br><br>—————<br>**1:0 (6:3 0:0)|S2,B**<br><br>**"1:0"** - текущий счет;<br>**"6:3"** - в первом сете;<br>**"0:0"** - это счет во втором сете;<br>**S2,B** - сейчас брейк перед вторым сетом;<br><br>—————<br>**1:1 (0:1 1:0) 68`**<br><br>**"68"** - минуты игры с начала матча;<br>**"1:1"** - текущий счет;<br>**"(0:1 1:0)"** - идет второй тайм. В первом тайме забила 2-ая команда, а во втором тайме забила 1-ая команда;</p></details><details><summary>**<i>Описание составляющих meta (развернуть):</i>**</summary><p><br>Мета может меняться от спорта и от бк! Будьте внимательны!<br>Мы обычно старое не убираем, а лишь добавляем новое. Стараемся всегда сообщать об изменениях через наш официальный телеграм-канал.<br>Что-то из мета может быть не актуально или если у Вас есть какие-то вопросы, то пожалуйста уточнятйте у тех. поддержки.<br><br>Мы можем добавить в мета что-то новое, если Вам это необходимо. В мета ограничение 250 символов, но постараемся это уместить.<br><br>—————<br>**Fonbet:**<br>**live_delay** - переменная напрямую из "внутренностей" фонбета. Можете не обращать на него внимания.<br>Чем выше live_delay, тем дольше будет приниматься ставка. Есть ставки, которые принимаются моментально - на них live_delay=0 или 1.<br>Стандартный 3-4, но бывают такие матчи, где 5-6.<br><br>—————<br>**Unibet**<br>**boId** - это id группы ставок<br>**id** - это непосредственно id ставки<br>**event_id** -  eId<br><br>—————<br>**Efbet**<br>**pu** - currentpriceup<br>**pd** - currentpricedown<br>**shc** - selectionhashcode<br>**m**n - marketname<br>**im** - idfomarket<br>**et** - eachwayterms<br>**prt** - pricetypes (есть везде)<br>**hv** - hadvalue (кое где не задано, поэтому что бы не пропадало сделали, его как null если его нет). HV - не всегда А, вообще это значение Home/Away/Draw, есть в некоторых ставках, но не во всех. По больше части там, где это критично для их внутренней идентификаии ставок.<br><br>На уровне ивента добавлен ключ в мету orig_name - имя ивента, как оно на апи в ефбете.<br><br>—————<br>**Семейство 1xbet (melbet/1xstavka)**<br>**NB** - nameBet/name_bet<br>**NG** - nameGroup/name_group<br>**C** - Price<br>**G** - Bet gourp id<br>**P** - идентификатор ставки, используется в форах/тоталах<br>**T** - идентификатор ставки<br>**SSI** - SubsportID<br>**GN** - gameNum<br>**ei** - event_id<br>**gi** - game_id<br><br>—————<br>**888**<br>**s_name** - название спорта на сайте<br><br>—————<br>**Pinnacle**<br>**"key":"s;0;s;0.25** - это marketKey, конкретно этот - фора в игре 0.25<br>**"dest"** - может быть “null”, если у исхода нет данного поля<br>**"dest\":\"under\"** - новый ключ для TU (TotalUnder)<br>**"dest\":\"over\"** - новый ключ для TO (TotalOver)<br>**"points"** - для фор и тоталов с оригинальным значением из API, т.е. без учёта знака и счёта для фор. Для других видов ставок поля 'points' не добавляется в мету.<br><br>—————<br>**pari-match (Parimatch_com/Parimatch_ru)**<br>Париматч ру парсится с parimatch.ru (он же до недавнего времени new.parimatch.com). https://air2.parimatch.com представляет собой старую версию parimatch.ru (то есть это по сути и есть старая версия того же париматч ру). Поэтому у них очень похожая в принципе мета. То есть, parimatch com основан непостредственно на parimatch.com, new_parimatch_ru основан на parimatch.ru<br><br>—————<br>**bet365**<br>**visible_ru** - false/true, флаг "видимости". Информация о «видимости» матча с  рф-версии сайта. Это определяется по нескольким критериям, они не на поверхности.<br>**true** - матч видно<br>**false** - матч недоступен для рф версии.<br>Информация доступна в мета-данных по самому событию<br><br>—————<br>**eurobet**<br>**betGroup** - верхняя группа<br>**oggGroup** - то что внутри блока<br>**odd** - текст третьего уровня<br>**resultCode** - id кнопки они там по порядку идут, в html этого нет, но с этой метой в целом ставку можно найти без особых проблем<br></p></details><br>
+      summary: Получить список валуев
+      operationId: getValueBets
+      parameters:
+      - name: bet_types
+        description: Тип ставок в валуе<br>
+          Актуальный список типов ставок с подробным описанием находится по этой ссылке - <a href="http://api.oddscp.com:8111/static/possible_bets_list.txt">http://api.oddscp.com:8111/static/possible_bets_list.txt</a>
+        in: query
+        style: form
+        explode: false
+        example: HALF_WIN,WIN
+        schema:
+          type: array
+          items:
+            "$ref": "#/components/schemas/BetType"
+      - name: sport
+        description: Спорт
+        in: query
+        style: form
+        explode: false
+        example: tennis,soccer
+        schema:
+          type: array
+          items:
+            type: string
+      - name: event_id
+        description: Получение валуев только по указанному id события
+        in: query
+        schema:
+          type: string
+        example: 181993
+      - name: bk_name
+        description: Список букмекерских контор на которых ищем валуи
+        in: query
+        required: true
+        style: form
+        explode: false
+        example: fonbet,olimp,bet365
+        schema:
+          type: array
+          items:
+            type: string
+      - name: min_cf
+        description: Минимальный коэффициент
+        in: query
+        example: 1.1
+        schema:
+          type: number
+      - name: max_cf
+        description: Максимальный коэффициент
+        in: query
+        example: 3.5
+        schema:
+          type: number
+      - name: min_fi
+        description: Минимальный % валуя
+        in: query
+        example: -1
+        schema:
+          type: number
+      - name: max_fi
+        description: Максимальный % валуя
+        in: query
+        example: 10
+        schema:
+          type: number
+      - name: alive_sec
+        description: Минимальное время существования валуя для указанного процента
+          (-1%)
+        in: query
+        schema:
+          type: number
+          default: 0
+      - name: alive_prc
+        description: Процент валуя, относительно которого рассчитывается alive_sec
+        in: query
+        schema:
+          type: number
+          default: -1
+          enum:
+          - -1
+          - 0
+          - 0.5
+          - 1
+          - 1.5
+          - 2
+          - 2.5
+          - 3
+      - name: get_market_data
+        description: Включить отображение валуйных расчетов. Появятся valuing_data включающий себя, при __"1"__ - коэффициенты на других бк, валуйные расчеты. __"2"__ - коэффициенты на других бк, валуйные расчеты, счет на других бк и последнее время изменение коэфицента.<br> Для видов спорта soccer, table-tennis, tennis, volleyball - включена обязательная сверка счета. В расчетах участвуют только те БК счет на которых совпадает с основной БК. Для других видов спорта обязательная сверка счета отсутствует.
+         <details><summary><strong>Описание значений в valuing_data&#58; (развернуть)</strong></summary><p><br><strong>need_cfs</strong> - массив из коэффициентов, которые принимают участие в расчётах ниже<br><br><strong>cf_orig</strong> - это искомый кф (по той самой ставке, которую мы передали в урле)<br><strong>cf_mdn</strong> - медианный кф по всем бк, включая запрошенную<br><strong>cf_avg</strong> - средний кф (среднее арифметическое)<br><strong>cf_avg2 и cf_mdn2</strong> - это тестовые данные, их можете пропустить<br><strong>diff_avg</strong> - это разница cf_avg - cf_orig (в % разумеется)<br><strong>diff_mdn</strong> - разница cf_mdn - cf_orig<br><strong>min_max_dst</strong> - это разница в % между мин и макс кф по всем бк<br><strong>total_cnt</strong> - количество кф<br><strong>total_pos</strong> - это расположение запрошенного кф на линейке отсортированных кф (если наш кф лучший, то значение будет 1.0, а если худший, то 0.0)<br><strong>better_cnt</strong> - количество кф, которые >= текущего<br><strong>aw_avg</strong> - перевес с учетом маржи (aw = <перевес вероятностей> - <маржа>). Cреднее арифм.<br><strong>aw_mdn</strong> - перевес с учетом маржи (aw = <перевес вероятностей> - <маржа>). Медианное.<br><strong>ow_avg</strong> - ожидаемый ROI (ow = <перевес вероятностей>\*2 - <маржа>) Cреднее арифм.<br><strong>ow_mdn</strong> - ожидаемый ROI (ow = <перевес вероятностей>\*2 - <маржа>). Медианное.<br><strong>min_aw</strong> - перевес с учетом маржи (aw = <перевес> - <маржа>). Наименьшее.<br><strong>min_ow</strong> - ожидаемый ROI (ow = <перевес>\*2 - <маржа>). Наименьшее.<br><strong>min_diff</strong> - это разница cf_(наименьшего) - cf_orig<br><strong>ow2_avg</strong> - в основе расчёта лежит перевес размеров выигрышей - по формуле (CF2 - CF1)/CF1. Cреднее арифм.<br><strong>ow2_mdn</strong> - в основе расчёта лежит перевес размеров выигрышей - по формуле (CF2 - CF1)/CF1. Медианное.<br><br><strong>Перевес вероятностей</strong> - считается по формуле (1/CF1 - 1/CF2)<br><br><strong>Внутри массива valuing_data.cfs следующие данные по каждой бк&#58;</strong><br>- Текущий кф<br>- Сколько секунд назад кф изменился<br>- Текущий счёт в матче<br>- Маржа. Вот простая формула расчёта маржи&#58; <a href="http&#58;//prntscr.com/vmgtfj">http&#58;//prntscr.com/vmgtfj</a> (<a href="https&#58;//www.championat.com/bets/article-3993207-chto-takoe-marzha-v-stavkah-na-sport-kak-rasschitat-stavki-marzha-bukmekera-primer-onlajn.html#&#58;~&#58;text=%D0%9C%D0%B0%D1%80%D0%B6%D0%B0%20%D0%B2%20%D0%B1%D1%83%D0%BA%D0%BC%D0%B5%D0%BA%D0%B5%D1%80%D1%81%D0%BA%D0%BE%D0%B9%20%D0%BA%D0%BE%D0%BD%D1%82%D0%BE%D1%80%D0%B5%20%E2%80%94%20%D0%BA%D0%BE%D0%BC%D0%B8%D1%81%D1%81%D0%B8%D1%8F,%D0%BF%D1%80%D0%B8%20%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D0%B0%D1%85%20%D0%BD%D0%B0%20%D1%80%D0%B0%D0%B2%D0%BD%D0%BE%D0%B2%D0%B5%D1%80%D0%BE%D1%8F%D1%82%D0%BD%D1%8B%D0%B5%20%D0%B8%D1%81%D1%85%D0%BE%D0%B4%D1%8B.">источник</a>)</p></details><br>
+        in: query
+        schema:
+          type: number
+          default: 2
+          enum:
+          - 1
+          - 2
+        example: 2       
+      responses:
+        '200':
+          description: Возвращает массив valuebets
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Value"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '422':
+          "$ref": "#/components/responses/MissingParameterError"
+  "/values/get_market_data/{BK1_event_id}/{BK1_bet}":
+    get:
+      tags:
+      - Валуи [Value bets]
+      summary: Получить детали валуя
+      description: |-
+        Запрос для получения подробных деталей по отдельному валую (по ID события на бк и ставке). Вы увидите - коэффициенты на других бк, валуйные расчеты, счет на других бк и последнее время изменение коэфицента.<br><br>
+        **Данный вид уточняющего запроса возможен только за дополнительную плату!!! Пожалуйста уточняйте подробности у поддержки.**
+        <br><br>
+        **Пример уточняющего запроса для валуя:** http://api.oddscp.com:8111/values/get_market_data/BT3SCDD314B746FF/WIN__P1?&token=afdjd8fd8rjkfu7fa7f3 <br><br>**<a href="https://oddscp-api.github.io/#operation/getBookmakers"><i>&#9654; Список всех букмекеров и их сокращений в параметре "CFS" (открыть)</i></a>**<details><summary><strong><i>Описание значений в валуйных расчетах (развернуть):</i></strong></summary><p><br><strong>need_cfs</strong> - массив из коэффициентов, которые принимают участие в расчётах ниже<br><br><strong>cf_orig</strong> - это искомый кф (по той самой ставке, которую мы передали в урле)<br><strong>cf_mdn</strong> - медианный кф по всем бк, включая запрошенную<br><strong>cf_avg</strong> - средний кф (среднее арифметическое)<br><strong>cf_avg2 и cf_mdn2</strong> - это тестовые данные, их можете пропустить<br><strong>diff_avg</strong> - это разница cf_avg - cf_orig (в % разумеется)<br><strong>diff_mdn</strong> - разница cf_mdn - cf_orig<br><strong>min_max_dst</strong> - это разница в % между мин и макс кф по всем бк<br><strong>total_cnt</strong> - количество кф<br><strong>total_pos</strong> - это расположение запрошенного кф на линейке отсортированных кф (если наш кф лучший, то значение будет 1.0, а если худший, то 0.0)<br><strong>better_cnt</strong> - количество кф, которые >= текущего<br><strong>aw_avg</strong> - перевес с учетом маржи (aw = <перевес вероятностей> - <маржа>). Cреднее арифм.<br><strong>aw_mdn</strong> - перевес с учетом маржи (aw = <перевес вероятностей> - <маржа>). Медианное.<br><strong>ow_avg</strong> - ожидаемый ROI (ow = <перевес вероятностей>\*2 - <маржа>) Cреднее арифм.<br><strong>ow_mdn</strong> - ожидаемый ROI (ow = <перевес вероятностей>\*2 - <маржа>). Медианное.<br><strong>min_aw</strong> - перевес с учетом маржи (aw = <перевес> - <маржа>). Наименьшее.<br><strong>min_ow</strong> - ожидаемый ROI (ow = <перевес>\*2 - <маржа>). Наименьшее.<br><strong>min_diff</strong> - это разница cf_(наименьшего) - cf_orig<br><strong>ow2_avg</strong> - в основе расчёта лежит перевес размеров выигрышей - по формуле (CF2 - CF1)/CF1. Cреднее арифм.<br><strong>ow2_mdn</strong> - в основе расчёта лежит перевес размеров выигрышей - по формуле (CF2 - CF1)/CF1. Медианное.<br><br><strong>Перевес вероятностей</strong> - считается по формуле (1/CF1 - 1/CF2)<br><br><strong>Внутри массива valuing_data.cfs следующие данные по каждой бк&#58;</strong><br>- Текущий кф<br>- Сколько секунд назад кф изменился<br>- Текущий счёт в матче<br>- Маржа. Вот простая формула расчёта маржи&#58; <a href="http&#58;//prntscr.com/vmgtfj">http&#58;//prntscr.com/vmgtfj</a> (<a href="https&#58;//www.championat.com/bets/article-3993207-chto-takoe-marzha-v-stavkah-na-sport-kak-rasschitat-stavki-marzha-bukmekera-primer-onlajn.html#&#58;~&#58;text=%D0%9C%D0%B0%D1%80%D0%B6%D0%B0%20%D0%B2%20%D0%B1%D1%83%D0%BA%D0%BC%D0%B5%D0%BA%D0%B5%D1%80%D1%81%D0%BA%D0%BE%D0%B9%20%D0%BA%D0%BE%D0%BD%D1%82%D0%BE%D1%80%D0%B5%20%E2%80%94%20%D0%BA%D0%BE%D0%BC%D0%B8%D1%81%D1%81%D0%B8%D1%8F,%D0%BF%D1%80%D0%B8%20%D1%81%D1%82%D0%B0%D0%B2%D0%BA%D0%B0%D1%85%20%D0%BD%D0%B0%20%D1%80%D0%B0%D0%B2%D0%BD%D0%BE%D0%B2%D0%B5%D1%80%D0%BE%D1%8F%D1%82%D0%BD%D1%8B%D0%B5%20%D0%B8%D1%81%D1%85%D0%BE%D0%B4%D1%8B.">источник</a>)</p></details><details><summary>**<i>Примеры и описание формирования счета (развернуть):</i>**</summary><p><br>**H** - половина<br>**G** - гейм<br>**M** - карта (киберспорт)<br>**R** - раунд<br>**T** - тайм<br>**S** - сет<br>**P** - период<br>**I** - иннинг (бейсбол)<br>**Q** - четверь<br><br>**OT** - овертайм (overtime - дополнительное время)<br>**B** - брейк (перерыв)<br>__*__ - чья подача (Бадминтон, Волейбол)<br><br><br>**Примеры:**<br>**1:0 (6:3)|T2,B**<br><br>**B** - значит перерыв (break) перед 2 таймом;<br><br>—————<br>**1:0 (6:3 0:0)|S2,B**<br><br>**"1:0"** - текущий счет;<br>**"6:3"** - в первом сете;<br>**"0:0"** - это счет во втором сете;<br>**S2,B** - сейчас брейк перед вторым сетом;<br><br>—————<br>**1:1 (0:1 1:0) 68`**<br><br>**"68"** - минуты игры с начала матча;<br>**"1:1"** - текущий счет;<br>**"(0:1 1:0)"** - идет второй тайм. В первом тайме забила 2-ая команда, а во втором тайме забила 1-ая команда;</p></details>
+      operationId: getValuebet
+      parameters:
+      - name: BK1_event_id
+        description: Идентификатор события на БК
+        required: true
+        in: path
+        example: BT3SCDD314B746FF
+        schema:
+          type: string
+      - name: BK1_bet
+        description: Ставка на БК
+        required: true
+        in: path
+        example: WIN__P1
+        schema:
+          type: string
+      - name: sf
+        description: Включение сверки счета между бк, т.е. исключение из валуйных расчетов букмекерских контор, которые еще не обновили счет. По умолчанию у валуев отключена сверка счета, что бы исключить ошибочные расчеты для валуев из-за задержки обновления данных у БК. Указать "**&sf=1**" для использования в расчетах только бк с корректным счетом.
+        in: query
+        schema:
+          type: number
+          default: 0
+          enum:
+          - 0
+          - 1
+      responses:
+        '200':
+          description: Возвращает расчеты для валуя
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValueData"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '404':
+          description: Валуй не найден
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '422':
+          "$ref": "#/components/responses/MissingParameterError"  
+  "/koef":
+   get:
+      tags:
+      - WebSocket [Обновление коэффициентов]
+      summary: Получение и обновление коэффицентов
+      description: __WebSocket документация доступна по адресу - <a href="https://oddscorp.gitbook.io/websocket/">https://oddscorp.gitbook.io/websocket/</a>__<br><br>
+       
+      operationId: getKoef
+      responses:
+        '200':
+          description: OK
+
+  "/sports":
+    get:
+      tags:
+      - Вспомогательное
+      summary: Виды спорта
+      description: Возвращает список доступных видов спорта с описанием
+      operationId: getSports
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Sport"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+  "/bookmakers":
+    get:
+      tags:
+      - Вспомогательное
+      summary: Букмекеры
+      description: |-
+        Возвращает список доступных букмекеров с описанием. В список войдут
+        только те букмекеры, которые были запрошены/оплачены в Вашем тарифе.
+      operationId: getBookmakers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/Bookmaker"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+  "/forks":
+    get:
+      tags:
+      - PREMATCH / LIVE-вилки
+      description: Возвращает список PREMATCH / LIVE-вилок по заданным параметрам<br><br>__Пример запроса&#58;__ <i>http&#58;//api.oddscp.com&#58;8111/forks?bk2_name=pinnacle,bet365,fonbet&min_fi=1&token=afdjd8fd8rjkfu7fa7f3 </i> <br><details><summary>**<i>Примеры и описание формирования счета (развернуть):</i>**</summary><p><br>**H** - половина<br>**G** - гейм<br>**M** - карта (киберспорт)<br>**R** - раунд<br>**T** - тайм<br>**S** - сет<br>**P** - период<br>**I** - иннинг (бейсбол)<br>**Q** - четверь<br><br>**OT** - овертайм (overtime - дополнительное время)<br>**B** - брейк (перерыв)<br>__*__ - чья подача (Бадминтон, Волейбол)<br><br><br>**Примеры:**<br>**1:0 (6:3)|T2,B**<br><br>**B** - значит перерыв (break) перед 2 таймом;<br><br>—————<br>**1:0 (6:3 0:0)|S2,B**<br><br>**"1:0"** - текущий счет;<br>**"6:3"** - в первом сете;<br>**"0:0"** - это счет во втором сете;<br>**S2,B** - сейчас брейк перед вторым сетом;<br><br>—————<br>**1:1 (0:1 1:0) 68`**<br><br>**"68"** - минуты игры с начала матча;<br>**"1:1"** - текущий счет;<br>**"(0:1 1:0)"** - идет второй тайм. В первом тайме забила 2-ая команда, а во втором тайме забила 1-ая команда;</p></details><details><summary>**<i>Описание составляющих meta (развернуть):</i>**</summary><p><br>Мета может меняться от спорта и от бк! Будьте внимательны!<br>Мы обычно старое не убираем, а лишь добавляем новое. Стараемся всегда сообщать об изменениях через наш официальный телеграм-канал.<br>Что-то из мета может быть не актуально или если у Вас есть какие-то вопросы, то пожалуйста уточнятйте у тех. поддержки.<br><br>Мы можем добавить в мета что-то новое, если Вам это необходимо. В мета ограничение 250 символов, но постараемся это уместить.<br><br>—————<br>**Fonbet:**<br>**live_delay** - переменная напрямую из "внутренностей" фонбета. Можете не обращать на него внимания.<br>Чем выше live_delay, тем дольше будет приниматься ставка. Есть ставки, которые принимаются моментально - на них live_delay=0 или 1.<br>Стандартный 3-4, но бывают такие матчи, где 5-6.<br><br>—————<br>**Unibet**<br>**boId** - это id группы ставок<br>**id** - это непосредственно id ставки<br>**event_id** -  eId<br><br>—————<br>**Efbet**<br>**pu** - currentpriceup<br>**pd** - currentpricedown<br>**shc** - selectionhashcode<br>**m**n - marketname<br>**im** - idfomarket<br>**et** - eachwayterms<br>**prt** - pricetypes (есть везде)<br>**hv** - hadvalue (кое где не задано, поэтому что бы не пропадало сделали, его как null если его нет). HV - не всегда А, вообще это значение Home/Away/Draw, есть в некоторых ставках, но не во всех. По больше части там, где это критично для их внутренней идентификаии ставок.<br><br>На уровне ивента добавлен ключ в мету orig_name - имя ивента, как оно на апи в ефбете.<br><br>—————<br>**Семейство 1xbet (melbet/1xstavka)**<br>**NB** - nameBet/name_bet<br>**NG** - nameGroup/name_group<br>**C** - Price<br>**G** - Bet gourp id<br>**P** - идентификатор ставки, используется в форах/тоталах<br>**T** - идентификатор ставки<br>**SSI** - SubsportID<br>**GN** - gameNum<br>**ei** - event_id<br>**gi** - game_id<br><br>—————<br>**888**<br>**s_name** - название спорта на сайте<br><br>—————<br>**Pinnacle**<br>**"key":"s;0;s;0.25** - это marketKey, конкретно этот - фора в игре 0.25<br>**"dest"** - может быть “null”, если у исхода нет данного поля<br>**"dest\":\"under\"** - новый ключ для TU (TotalUnder)<br>**"dest\":\"over\"** - новый ключ для TO (TotalOver)<br>**"points"** - для фор и тоталов с оригинальным значением из API, т.е. без учёта знака и счёта для фор. Для других видов ставок поля 'points' не добавляется в мету.<br><br>—————<br>**pari-match (Parimatch_com/Parimatch_ru)**<br>Париматч ру парсится с parimatch.ru (он же до недавнего времени new.parimatch.com). https://air2.parimatch.com представляет собой старую версию parimatch.ru (то есть это по сути и есть старая версия того же париматч ру). Поэтому у них очень похожая в принципе мета. То есть, parimatch com основан непостредственно на parimatch.com, new_parimatch_ru основан на parimatch.ru<br><br>—————<br>**bet365**<br>**visible_ru** - false/true, флаг "видимости". Информация о «видимости» матча с  рф-версии сайта. Это определяется по нескольким критериям, они не на поверхности.<br>**true** - матч видно<br>**false** - матч недоступен для рф версии.<br>Информация доступна в мета-данных по самому событию<br><br>—————<br>**eurobet**<br>**betGroup** - верхняя группа<br>**oggGroup** - то что внутри блока<br>**odd** - текст третьего уровня<br>**resultCode** - id кнопки они там по порядку идут, в html этого нет, но с этой метой в целом ставку можно найти без особых проблем<br></p></details><br>
+      summary: Получить список PREMATCH / LIVE-вилок
+      operationId: getForks
+      parameters:
+      - name: live
+        description: Получение **PREMATCH-вилок**. Указать "**&live=0**" для получения прематч вилок. По умолчанию запрашиваются LIVE-вилки, т.е. для LIVE-вилок этот параметр указывать не надо.
+        in: query
+        schema:
+          type: number
+        example: 0
+      - name: bet_types
+        description: Тип ставок в вилке.<br>
+          Актуальный список типов ставок с подробным описанием находится по этой ссылке - <a href="http://api.oddscp.com:8111/static/possible_bets_list.txt">http://api.oddscp.com:8111/static/possible_bets_list.txt</a>
+        in: query
+        style: form
+        explode: false
+        example: HALF_WIN,WIN
+        schema:
+          type: array
+          items:
+            "$ref": "#/components/schemas/BetType"
+      - name: sport
+        description: Спорт
+        in: query
+        style: form
+        explode: false
+        example: tennis,soccer
+        schema:
+          type: array
+          items:
+            type: string
+      - name: event_id
+        description: Получение вилок только по указанному id события
+        in: query
+        schema:
+          type: string
+        example: 181993
+      - name: bk2_name
+        description: Список букмекеров, участвующих в вилке
+        in: query
+        required: true
+        style: form
+        explode: false
+        example: fonbet,olimp,bet365
+        schema:
+          type: array
+          items:
+            type: string
+      - name: bk_name
+        description: Букмекер, который обязательно должен участвовать в вилке
+        in: query
+        example: fonbet
+        schema:
+          type: string
+      - name: min_cf
+        description: Минимальный коэффициент
+        in: query
+        example: 1.1
+        schema:
+          type: number
+      - name: max_cf
+        description: Максимальный коэффициент
+        in: query
+        example: 3.5
+        schema:
+          type: number
+      - name: min_fi
+        description: Минимальный % вилки
+        in: query
+        example: -1
+        schema:
+          type: number
+      - name: max_fi
+        description: Максимальный % вилки
+        in: query
+        example: 10
+        schema:
+          type: number
+      - name: is_middles
+        description: |-
+          Коридоры в выдачи. -1 - без коридоров. 0 - вилки и коридоры.
+          1 - только коридоры
+        in: query
+        schema:
+          type: number
+          default: 0
+          enum:
+          - -1
+          - 0
+          - 1
+      - name: alive_sec
+        description: Минимальное время существования вилки для указанного процента
+          (-1%)
+        in: query
+        schema:
+          type: number
+          default: 0
+      - name: alive_prc
+        description: Процент вилки, относительно которого рассчитывается alive_sec
+        in: query
+        schema:
+          type: number
+          default: -1
+          enum:
+          - -1
+          - 0
+          - 0.5
+          - 1
+          - 1.5
+          - 2
+          - 2.5
+          - 3
+      - name: get_cfs
+        description: (Параметр доступен только за доп. оплату, цену уточняте у тех. поддержки). Выдает список коэффициентов для текущего маркета на всех бк в данный момент и выдает текущий счёт на вилочном матче. В ответе появятся 3 ключа - cfs1, cfs2, all_scores.
+                    <details>
+         <summary>**<i>Способы применения (развернуть):</i>**</summary>
+          <p><i>В первую очередь, следует использовать для определения "инициатора вилки".  В этом случае вам следует пройтись по всему списку БК и рассчитать вилки по стандартной формуле (мы с этим поможем, если её у вас нет) от нужного вам процента.<br><br>
+          Также, следует обязательно учесть "зеркала" - оптимальный вариант взять самый высокий кф из всех зеркальных контор. Сам список зеркал можно получить используя данные метода /bookmakers.<br><br>
+          Помимо определения "инициатора", эти данные можно использовать для более глубокой кастомизации ваших стратегий, или проще говоря - фильтровать общий поток вилок. Как именно? Тут уже всё остаётся на усмотрение вашей собственной фантазии и вашего опыта.<br><br>
+          Наличие текущего счёта на вилочном матче по всем БК позволит вам более детально анализировать текущую ситуацию и быть более уверенными в тех ставках, которые вы совершаете.</i></p>
+          </details>
+        in: query
+        example: 1
+        schema:
+          type: number
+      - name: score_filter
+        description: Отключение сверки счета между БК. По умолчанию у вилок для на soccer и hockey включена сверка счета, что бы избежать ошибочных вилок из-за задержки обновления данных у БК. Для других видов спорта этот параметр не работает. Указать "**&score_filter=0**" для отключения сверки счета. 
+        in: query
+        schema:
+          type: number
+        example: 0
+      - name: show_swap
+        description: Отображать был ли перевернут порядок команд для каждой бк в вилке. В ответе появятся 2 ключа - BK1_event_swapped и BK2_event_swapped. Указать "**&show_swap=1**" для включения отображения. 
+        in: query
+        schema:
+          type: number
+        example: 1        
+      responses:
+        '200':
+          description: Возвращает массив Fork
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Fork"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '422':
+          "$ref": "#/components/responses/MissingParameterError"
+  "/forks/{fork_id}":
+    get:
+      tags:
+      - PREMATCH / LIVE-вилки
+      summary: Получить детали вилки
+      description: |-
+        Запрос для получения подробных деталей по отдельной вилке (по её
+        ключу)<br><br>
+        **Пример запроса prematch вилки:** http://api.oddscp.com:8111/forks/13596cec090d11ac3b?live=0&token=afdjd8fd8rjkfu7fa7f3 (обратите внимание на параметр **live=0**) <br><br>**Пример запроса live вилки:** http://api.oddscp.com:8111/forks/13596cec090d11ac3b?&token=afdjd8fd8rjkfu7fa7f3 <details><summary>**<i>Примеры и описание формирования счета (развернуть):</i>**</summary><p><br>**H** - половина<br>**G** - гейм<br>**M** - карта (киберспорт)<br>**R** - раунд<br>**T** - тайм<br>**S** - сет<br>**P** - период<br>**I** - иннинг (бейсбол)<br>**Q** - четверь<br><br>**OT** - овертайм (overtime - дополнительное время)<br>**B** - брейк (перерыв)<br>__*__ - чья подача (Бадминтон, Волейбол)<br><br><br>**Примеры:**<br>**1:0 (6:3)|T2,B**<br><br>**B** - значит перерыв (break) перед 2 таймом;<br><br>—————<br>**1:0 (6:3 0:0)|S2,B**<br><br>**"1:0"** - текущий счет;<br>**"6:3"** - в первом сете;<br>**"0:0"** - это счет во втором сете;<br>**S2,B** - сейчас брейк перед вторым сетом;<br><br>—————<br>**1:1 (0:1 1:0) 68`**<br><br>**"68"** - минуты игры с начала матча;<br>**"1:1"** - текущий счет;<br>**"(0:1 1:0)"** - идет второй тайм. В первом тайме забила 2-ая команда, а во втором тайме забила 1-ая команда;</p></details><details><summary>**<i>Описание составляющих meta (развернуть):</i>**</summary><p><br>Мета может меняться от спорта и от бк! Будьте внимательны!<br>Мы обычно старое не убираем, а лишь добавляем новое. Стараемся всегда сообщать об изменениях через наш официальный телеграм-канал.<br>Что-то из мета может быть не актуально или если у Вас есть какие-то вопросы, то пожалуйста уточнятйте у тех. поддержки.<br><br>Мы можем добавить в мета что-то новое, если Вам это необходимо. В мета ограничение 250 символов, но постараемся это уместить.<br><br>—————<br>**Fonbet:**<br>**live_delay** - переменная напрямую из "внутренностей" фонбета. Можете не обращать на него внимания.<br>Чем выше live_delay, тем дольше будет приниматься ставка. Есть ставки, которые принимаются моментально - на них live_delay=0 или 1.<br>Стандартный 3-4, но бывают такие матчи, где 5-6.<br><br>—————<br>**Unibet**<br>**boId** - это id группы ставок<br>**id** - это непосредственно id ставки<br>**event_id** -  eId<br><br>—————<br>**Efbet**<br>**pu** - currentpriceup<br>**pd** - currentpricedown<br>**shc** - selectionhashcode<br>**m**n - marketname<br>**im** - idfomarket<br>**et** - eachwayterms<br>**prt** - pricetypes (есть везде)<br>**hv** - hadvalue (кое где не задано, поэтому что бы не пропадало сделали, его как null если его нет). HV - не всегда А, вообще это значение Home/Away/Draw, есть в некоторых ставках, но не во всех. По больше части там, где это критично для их внутренней идентификаии ставок.<br><br>На уровне ивента добавлен ключ в мету orig_name - имя ивента, как оно на апи в ефбете.<br><br>—————<br>**Семейство 1xbet (melbet/1xstavka)**<br>**NB** - nameBet/name_bet<br>**NG** - nameGroup/name_group<br>**C** - Price<br>**G** - Bet gourp id<br>**P** - идентификатор ставки, используется в форах/тоталах<br>**T** - идентификатор ставки<br>**SSI** - SubsportID<br>**GN** - gameNum<br>**ei** - event_id<br>**gi** - game_id<br><br>—————<br>**888**<br>**s_name** - название спорта на сайте<br><br>—————<br>**Pinnacle**<br>**"key":"s;0;s;0.25** - это marketKey, конкретно этот - фора в игре 0.25<br>**"dest"** - может быть “null”, если у исхода нет данного поля<br>**"dest\":\"under\"** - новый ключ для TU (TotalUnder)<br>**"dest\":\"over\"** - новый ключ для TO (TotalOver)<br>**"points"** - для фор и тоталов с оригинальным значением из API, т.е. без учёта знака и счёта для фор. Для других видов ставок поля 'points' не добавляется в мету.<br><br>—————<br>**pari-match (Parimatch_com/Parimatch_ru)**<br>Париматч ру парсится с parimatch.ru (он же до недавнего времени new.parimatch.com). https://air2.parimatch.com представляет собой старую версию parimatch.ru (то есть это по сути и есть старая версия того же париматч ру). Поэтому у них очень похожая в принципе мета. То есть, parimatch com основан непостредственно на parimatch.com, new_parimatch_ru основан на parimatch.ru<br><br>—————<br>**bet365**<br>**visible_ru** - false/true, флаг "видимости". Информация о «видимости» матча с  рф-версии сайта. Это определяется по нескольким критериям, они не на поверхности.<br>**true** - матч видно<br>**false** - матч недоступен для рф версии.<br>Информация доступна в мета-данных по самому событию<br><br>—————<br>**eurobet**<br>**betGroup** - верхняя группа<br>**oggGroup** - то что внутри блока<br>**odd** - текст третьего уровня<br>**resultCode** - id кнопки они там по порядку идут, в html этого нет, но с этой метой в целом ставку можно найти без особых проблем<br></p></details><br>
+      operationId: getFork
+      parameters:
+      - name: fork_id
+        description: Идентификатор вилки
+        required: true
+        in: path
+        example: 70a5d610dac4c5c1a6
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Возвращает Fork
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Fork"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '404':
+          description: Вилка не найдена
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '422':
+          "$ref": "#/components/responses/MissingParameterError"
+  "/events":
+    get:
+      tags:
+      - PREMATCH / LIVE-События
+      summary: Получить список всех событий
+      description: Запрос для получения всех событий<details><summary>**<i>Примеры и описание формирования счета (развернуть):</i>**</summary><p><br>**H** - половина<br>**G** - гейм<br>**M** - карта (киберспорт)<br>**R** - раунд<br>**T** - тайм<br>**S** - сет<br>**P** - период<br>**I** - иннинг (бейсбол)<br>**Q** - четверь<br><br>**OT** - овертайм (overtime - дополнительное время)<br>**B** - брейк (перерыв)<br>__*__ - чья подача (Бадминтон, Волейбол)<br><br><br>**Примеры:**<br>**1:0 (6:3)|T2,B**<br><br>**B** - значит перерыв (break) перед 2 таймом;<br><br>—————<br>**1:0 (6:3 0:0)|S2,B**<br><br>**"1:0"** - текущий счет;<br>**"6:3"** - в первом сете;<br>**"0:0"** - это счет во втором сете;<br>**S2,B** - сейчас брейк перед вторым сетом;<br><br>—————<br>**1:1 (0:1 1:0) 68`**<br><br>**"68"** - минуты игры с начала матча;<br>**"1:1"** - текущий счет;<br>**"(0:1 1:0)"** - идет второй тайм. В первом тайме забила 2-ая команда, а во втором тайме забила 1-ая команда;</p></details>
+      operationId: getEvents
+      parameters:
+      - name: sport
+        description: Спорт
+        in: query
+        example: soccer,tennis
+        schema:
+          type: string
+      - name: bk_name
+        description: Идентификатор букмекера
+        in: query
+        example: fonbet
+        schema:
+          type: string
+      - name: live
+        description: Получение **PREMATCH-событий**. Указать "**&live=0**" для получения прематч событй. По умолчанию запрашиваются LIVE-события, т.е. для LIVE-событий этот параметр указывать не надо.
+        in: query
+        schema:
+          type: number
+        example: 0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
                   "$ref": "#/components/schemas/Event"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "description": "Событие не найдено",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/MissingParameterError"
-          }
-        }
-      }
-    },
-    "/groups/{event_id}": {
-      "get": {
-        "tags": [
-          "PREMATCH / LIVE-События"
-        ],
-        "summary": "Получить группу связанных событий",
-        "description": "Запрос для получения всех событий с разных букмекеров, которые\nобъединены в одну группу<br><br>__Пример запроса&#58;__ <i>http&#58;//api.oddscp.com&#58;8111/groups/23313791?show_names=1&token=afdjd8fd8rjkfu7fa7f3 </i> <br>",
-        "operationId": "getGroup",
-        "parameters": [
-          {
-            "name": "event_id",
-            "required": true,
-            "description": "id группы",
-            "in": "path",
-            "schema": {
-              "type": "string"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+  "/events/{bk_event_id}":
+    get:
+      tags:
+      - PREMATCH / LIVE-События
+      summary: Поиск события на определенном букмекере
+      description: Запрос для поиска определенного события по id или названию<details><summary>**<i>Примеры и описание формирования счета (развернуть):</i>**</summary><p><br>**H** - половина<br>**G** - гейм<br>**M** - карта (киберспорт)<br>**R** - раунд<br>**T** - тайм<br>**S** - сет<br>**P** - период<br>**I** - иннинг (бейсбол)<br>**Q** - четверь<br><br>**OT** - овертайм (overtime - дополнительное время)<br>**B** - брейк (перерыв)<br>__*__ - чья подача (Бадминтон, Волейбол)<br><br><br>**Примеры:**<br>**1:0 (6:3)|T2,B**<br><br>**B** - значит перерыв (break) перед 2 таймом;<br><br>—————<br>**1:0 (6:3 0:0)|S2,B**<br><br>**"1:0"** - текущий счет;<br>**"6:3"** - в первом сете;<br>**"0:0"** - это счет во втором сете;<br>**S2,B** - сейчас брейк перед вторым сетом;<br><br>—————<br>**1:1 (0:1 1:0) 68`**<br><br>**"68"** - минуты игры с начала матча;<br>**"1:1"** - текущий счет;<br>**"(0:1 1:0)"** - идет второй тайм. В первом тайме забила 2-ая команда, а во втором тайме забила 1-ая команда;</p></details>
+      operationId: getEvent
+      parameters:
+      - name: bk_event_id
+        required: true
+        description: id события
+        in: path
+        schema:
+          type: string
+        example: WLNBS21B94619065
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Event"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '404':
+          description: Событие не найдено
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '422':
+          "$ref": "#/components/responses/MissingParameterError"
+  "/groups/{event_id}":
+    get:
+      tags:
+      - PREMATCH / LIVE-События
+      summary: Получить группу связанных событий
+      description: |-
+        Запрос для получения всех событий с разных букмекеров, которые
+        объединены в одну группу<br><br>__Пример запроса&#58;__ <i>http&#58;//api.oddscp.com&#58;8111/groups/23313791?show_names=1&token=afdjd8fd8rjkfu7fa7f3 </i> <br>
+      operationId: getGroup
+      parameters:
+      - name: event_id
+        required: true
+        description: id группы
+        in: path
+        schema:
+          type: string
+        example: 182220
+      - name: show_names
+        description: Указать "**?show_names=1**" для отображения имен сгруппированных событий. 
+        in: query
+        schema:
+          type: number
+        example: 0
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  ids:
+                    lootbet: LBTSCC7E1368C8B2
+                    cbetgg: CBGSC38C2AA10324
+                    bet365: BT3SC88126EEE8F0
+                    parimatch_by: PABSCCCA809DB401
+                  status: OK
+                  event_names:
+                    LBTSCC7E1368C8B2: Abingdon United (w) vs Maidenhead United (w)
+                    CBGSC38C2AA10324: Abingdon United W. vs Maidenhead United W.
+                    BT3SC88126EEE8F0: Abingdon United Women vs Maidenhead Utd Women
+                    PABSCCCA809DB401: Абингдон Юн(жен) vs Мэйденхэд Юн(жен)
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+  "/markets":
+    get:
+      tags:
+      - PREMATCH / LIVE-События
+      summary: Поиск рынков
+      description: Запрос для поиска рынков по заданным параметрам.<br>Один из параметров обязателен при запросе - __bk_event_ids__ и/или __bk_name__<br><details><summary>**<i>Описание составляющих meta (развернуть):</i>**</summary><p><br>Мета может меняться от спорта и от бк! Будьте внимательны!<br>Мы обычно старое не убираем, а лишь добавляем новое. Стараемся всегда сообщать об изменениях через наш официальный телеграм-канал.<br>Что-то из мета может быть не актуально или если у Вас есть какие-то вопросы, то пожалуйста уточнятйте у тех. поддержки.<br><br>Мы можем добавить в мета что-то новое, если Вам это необходимо. В мета ограничение 250 символов, но постараемся это уместить.<br><br>—————<br>**Fonbet:**<br>**live_delay** - переменная напрямую из "внутренностей" фонбета. Можете не обращать на него внимания.<br>Чем выше live_delay, тем дольше будет приниматься ставка. Есть ставки, которые принимаются моментально - на них live_delay=0 или 1.<br>Стандартный 3-4, но бывают такие матчи, где 5-6.<br><br>—————<br>**Unibet**<br>**boId** - это id группы ставок<br>**id** - это непосредственно id ставки<br>**event_id** -  eId<br><br>—————<br>**Efbet**<br>**pu** - currentpriceup<br>**pd** - currentpricedown<br>**shc** - selectionhashcode<br>**m**n - marketname<br>**im** - idfomarket<br>**et** - eachwayterms<br>**prt** - pricetypes (есть везде)<br>**hv** - hadvalue (кое где не задано, поэтому что бы не пропадало сделали, его как null если его нет). HV - не всегда А, вообще это значение Home/Away/Draw, есть в некоторых ставках, но не во всех. По больше части там, где это критично для их внутренней идентификаии ставок.<br><br>На уровне ивента добавлен ключ в мету orig_name - имя ивента, как оно на апи в ефбете.<br><br>—————<br>**Семейство 1xbet (melbet/1xstavka)**<br>**NB** - nameBet/name_bet<br>**NG** - nameGroup/name_group<br>**C** - Price<br>**G** - Bet gourp id<br>**P** - идентификатор ставки, используется в форах/тоталах<br>**T** - идентификатор ставки<br>**SSI** - SubsportID<br>**GN** - gameNum<br>**ei** - event_id<br>**gi** - game_id<br><br>—————<br>**888**<br>**s_name** - название спорта на сайте<br><br>—————<br>**Pinnacle**<br>**"key":"s;0;s;0.25** - это marketKey, конкретно этот - фора в игре 0.25<br>**"dest"** - может быть “null”, если у исхода нет данного поля<br>**"dest\":\"under\"** - новый ключ для TU (TotalUnder)<br>**"dest\":\"over\"** - новый ключ для TO (TotalOver)<br>**"points"** - для фор и тоталов с оригинальным значением из API, т.е. без учёта знака и счёта для фор. Для других видов ставок поля 'points' не добавляется в мету.<br><br>—————<br>**pari-match (Parimatch_com/Parimatch_ru)**<br>Париматч ру парсится с parimatch.ru (он же до недавнего времени new.parimatch.com). https://air2.parimatch.com представляет собой старую версию parimatch.ru (то есть это по сути и есть старая версия того же париматч ру). Поэтому у них очень похожая в принципе мета. То есть, parimatch com основан непостредственно на parimatch.com, new_parimatch_ru основан на parimatch.ru<br><br>—————<br>**bet365**<br>**visible_ru** - false/true, флаг "видимости". Информация о «видимости» матча с  рф-версии сайта. Это определяется по нескольким критериям, они не на поверхности.<br>**true** - матч видно<br>**false** - матч недоступен для рф версии.<br>Информация доступна в мета-данных по самому событию<br><br>—————<br>**eurobet**<br>**betGroup** - верхняя группа<br>**oggGroup** - то что внутри блока<br>**odd** - текст третьего уровня<br>**resultCode** - id кнопки они там по порядку идут, в html этого нет, но с этой метой в целом ставку можно найти без особых проблем<br></p></details><br>
+      operationId: getMarkets
+      parameters:
+      - name: bk_event_ids
+        required: true
+        description: список id событий
+        in: query
+        schema:
+          type: string
+        example: FONBM50F801035DE,OLPBM3A2C25A6CAF
+      - name: sport
+        required: false
+        description: Список видов спорта
+        in: query
+        schema:
+          type: string
+        example: tennis,soccer
+      - name: bk_name
+        required: true
+        description: Идентификатор букмекера
+        in: query
+        schema:
+          type: string
+        example: fonbet
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Market"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '404':
+          description: Рынок не найден
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '422':
+          "$ref": "#/components/responses/MissingParameterError"
+  "/markets/{bk_event_id}":
+    get:
+      tags:
+      - PREMATCH / LIVE-События
+      summary: Получение всех рынков определенного события
+      description: Запрос для поиска всех рынков определенного события<br><details><summary>**<i>Описание составляющих meta (развернуть):</i>**</summary><p><br>Мета может меняться от спорта и от бк! Будьте внимательны!<br>Мы обычно старое не убираем, а лишь добавляем новое. Стараемся всегда сообщать об изменениях через наш официальный телеграм-канал.<br>Что-то из мета может быть не актуально или если у Вас есть какие-то вопросы, то пожалуйста уточнятйте у тех. поддержки.<br><br>Мы можем добавить в мета что-то новое, если Вам это необходимо. В мета ограничение 250 символов, но постараемся это уместить.<br><br>—————<br>**Fonbet:**<br>**live_delay** - переменная напрямую из "внутренностей" фонбета. Можете не обращать на него внимания.<br>Чем выше live_delay, тем дольше будет приниматься ставка. Есть ставки, которые принимаются моментально - на них live_delay=0 или 1.<br>Стандартный 3-4, но бывают такие матчи, где 5-6.<br><br>—————<br>**Unibet**<br>**boId** - это id группы ставок<br>**id** - это непосредственно id ставки<br>**event_id** -  eId<br><br>—————<br>**Efbet**<br>**pu** - currentpriceup<br>**pd** - currentpricedown<br>**shc** - selectionhashcode<br>**m**n - marketname<br>**im** - idfomarket<br>**et** - eachwayterms<br>**prt** - pricetypes (есть везде)<br>**hv** - hadvalue (кое где не задано, поэтому что бы не пропадало сделали, его как null если его нет). HV - не всегда А, вообще это значение Home/Away/Draw, есть в некоторых ставках, но не во всех. По больше части там, где это критично для их внутренней идентификаии ставок.<br><br>На уровне ивента добавлен ключ в мету orig_name - имя ивента, как оно на апи в ефбете.<br><br>—————<br>**Семейство 1xbet (melbet/1xstavka)**<br>**NB** - nameBet/name_bet<br>**NG** - nameGroup/name_group<br>**C** - Price<br>**G** - Bet gourp id<br>**P** - идентификатор ставки, используется в форах/тоталах<br>**T** - идентификатор ставки<br>**SSI** - SubsportID<br>**GN** - gameNum<br>**ei** - event_id<br>**gi** - game_id<br><br>—————<br>**888**<br>**s_name** - название спорта на сайте<br><br>—————<br>**Pinnacle**<br>**"key":"s;0;s;0.25** - это marketKey, конкретно этот - фора в игре 0.25<br>**"dest"** - может быть “null”, если у исхода нет данного поля<br>**"dest\":\"under\"** - новый ключ для TU (TotalUnder)<br>**"dest\":\"over\"** - новый ключ для TO (TotalOver)<br>**"points"** - для фор и тоталов с оригинальным значением из API, т.е. без учёта знака и счёта для фор. Для других видов ставок поля 'points' не добавляется в мету.<br><br>—————<br>**pari-match (Parimatch_com/Parimatch_ru)**<br>Париматч ру парсится с parimatch.ru (он же до недавнего времени new.parimatch.com). https://air2.parimatch.com представляет собой старую версию parimatch.ru (то есть это по сути и есть старая версия того же париматч ру). Поэтому у них очень похожая в принципе мета. То есть, parimatch com основан непостредственно на parimatch.com, new_parimatch_ru основан на parimatch.ru<br><br>—————<br>**bet365**<br>**visible_ru** - false/true, флаг "видимости". Информация о «видимости» матча с  рф-версии сайта. Это определяется по нескольким критериям, они не на поверхности.<br>**true** - матч видно<br>**false** - матч недоступен для рф версии.<br>Информация доступна в мета-данных по самому событию<br><br>—————<br>**eurobet**<br>**betGroup** - верхняя группа<br>**oggGroup** - то что внутри блока<br>**odd** - текст третьего уровня<br>**resultCode** - id кнопки они там по порядку идут, в html этого нет, но с этой метой в целом ставку можно найти без особых проблем<br></p></details><br>
+      operationId: getEventMarkets
+      parameters:
+      - name: bk_event_id
+        required: true
+        description: id события
+        in: path
+        schema:
+          type: string
+        example: WLNBS21B94619065
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+               "$ref": "#/components/schemas/Market"
+        '401':
+          "$ref": "#/components/responses/UnauthorizedError"
+        '422':
+          "$ref": "#/components/responses/MissingParameterError"
+components:
+  schemas:
+    Value:
+      type: object
+      required:
+      - fork_id
+      - event_id
+      - income
+      - BK1_name
+      - BK2_name
+      - BK1_bet_type
+      - BK2_bet_type
+      - bet_type
+      - sport
+      - BK1_game
+      - BK2_game
+      - BK1_bet
+      - BK2_bet
+      - BK1_alt_bet
+      - BK2_alt_bet
+      - BK1_cf
+      - BK2_cf
+      - BK1_event_id
+      - BK2_event_id
+      - BK1_event_native_id
+      - BK2_event_native_id
+      - BK1_event_meta
+      - BK2_event_meta
+      - BK1_market_meta
+      - BK2_market_meta
+      - BK1_href
+      - BK2_href
+      - BK1_league
+      - BK2_league
+      - BK1_score
+      - BK2_score
+      - alive_sec
+      properties:
+        fork_id:
+          type: string
+          description: ID валуя (ключ валуя)
+        event_id:
+          type: number
+          description: Идентификатор группы событий
+        income:
+          type: number
+          description: "% валуя (fi)"
+        BK1_name:
+          type: string
+          description: Идентификатор БК на которой валуем (БК-1)
+          example: fonbet
+        BK2_name:
+          type: string
+          description: Всегда "valuebets"
+          example: valuebets
+        BK1_bet_type:
+          description: Тип ставки на БК-1
+          "$ref": "#/components/schemas/BetType"
+        BK2_bet_type:
+          description: Тип ставки на БК-2
+          "$ref": "#/components/schemas/BetType"
+        bet_type:
+          description: |-
+            Общий тип ставок в вилке. Если bk1_bet_type = bk2_bet_type,
+            то bet_type = bk1_bet_type, иначе MIX
+        sport:
+          type: string
+          description: Вид спорта
+          example: tennis
+        BK1_game:
+          type: string
+          description: Название события на БК-1
+        BK2_game:
+          type: string
+          description: Название события на БК-2
+        BK1_bet:
+          type: string
+          description: Ставка на БК-1
+        BK2_bet:
+          type: string
+          description: Ставка на БК-2
+        BK1_alt_bet:
+          type: string
+          nullable: true
+          description: Альтернативная ставка на БК-1
+        BK2_alt_bet:
+          type: string
+          nullable: true
+          description: Альтернативная ставка на БК-2
+        BK1_cf:
+          type: number
+          description: Коэффициент на БК-1
+        BK2_cf:
+          type: number
+          description: Коэффициент на БК-2
+        BK1_event_id:
+          type: string
+          description: Идентификатор (наш внутренний) события на БК-1
+        BK2_event_id:
+          type: string
+          description: Идентификатор (наш внутренний) события на БК-2
+        BK1_event_native_id:
+          type: string
+          description: Идентификатор (нативный, как на самой бк) события на БК-1
+        BK2_event_native_id:
+          type: string
+          description: Идентификатор (нативный, как на самой бк) события на БК-2
+        BK1_event_meta:
+          type: string
+          description: 'Формат: JSON. Мета-данные по событию на БК-1'
+        BK2_event_meta:
+          type: string
+          description: 'Формат: JSON. Мета-данные по событию на БК-2'
+        BK1_market_meta:
+          type: string
+          description: 'Формат: JSON. Мета-данные для поиска нужной ставки на БК-1'
+        BK2_market_meta:
+          type: string
+          description: 'Формат: JSON. Мета-данные для поиска нужной ставки на БК-2'
+        BK1_href:
+          type: string
+          description: Ссылка на событие на БК-1
+        BK2_href:
+          type: string
+          description: Ссылка на событие на БК-2
+        BK1_league:
+          type: string
+          description: Название лиги на БК-1
+        BK2_league:
+          type: string
+          description: Название лиги на БК-2
+        BK1_score:
+          type: string
+          description: Текущий счёт на БК-1
+        BK2_score:
+          type: string
+          description: Текущий счёт на БК-2
+        alive_sec:
+          type: string
+          description: Сколько секунд вилка имеет процент выше заданного в alive_prc
+            (-1%)
+        valuing_data:
+          type: string
+          description: Формат - JSON. Коэффициенты на других бк, валуйные расчеты, счет на других бк и последнее время изменение коэфицента.
+      example:
+        fork_id: 8a86a9cd528b53b366
+        income: 0
+        sport: volleyball
+        bet_type: WIN
+        event_id: '178089'
+        BK1_bet: WIN__P1
+        BK1_bet_type: WIN
+        BK1_alt_bet: ''
+        BK1_cf: 3
+        BK1_event_id: BT3VBD2545FB3320
+        BK1_event_native_id: 6V200234215476232932C91A_1_1
+        BK1_game: Zenit Novosibirsk-pro vs Izumrud Berdsk-pro
+        BK1_href: https://www.bet365.com/#/IP/EV15924988815C13
+        BK1_league: Russia Liga Pro
+        BK1_name: bet365
+        BK1_score: 1:1 (19:25 25:23 17:20)
+        BK1_event_meta: ''
+        BK1_market_meta: '{"betId":"687799702","name":"Game Lines|Zenit Novosibirsk-pro|Winner"}'
+        BK2_bet: WIN__P1
+        BK2_bet_type: WIN
+        BK2_alt_bet: ''
+        BK2_cf: 2.75
+        BK2_event_id: ''
+        BK2_event_native_id: ''
+        BK2_game: ''
+        BK2_href: ''
+        BK2_league: ''
+        BK2_name: valuebets
+        BK2_score: ''
+        BK2_event_meta: ''
+        BK2_market_meta: ''
+        alive_sec: 32
+        valuing_data: '{
+            "cfs": {
+                "BT3": [
+                    "21",
+                    120,
+                    "0:2 (9:25 13:25 19:21)",
+                    4.56
+                ],
+                "WLN": [
+                    "12.25",
+                    23,
+                    "0:2 (9:25 13:25 19:21)",
+                    8.16
+                ],
+                "1WN": [
+                    "11",
+                    77,
+                    "0:2 (9:25 13:25 19:21)",
+                    null
+                ],
+                "STY": [
+                    "11",
+                    137,
+                    "0:2 (9:25 13:25 19:21)",
+                    8.1
+                ]
             },
-            "example": 182220
-          },
-          {
-            "name": "show_names",
-            "description": "Указать \"**?show_names=1**\" для отображения имен сгруппированных событий.",
-            "in": "query",
-            "schema": {
-              "type": "number"
-            },
-            "example": 0
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "example": {
-                    "ids": {
-                      "lootbet": "LBTSCC7E1368C8B2",
-                      "cbetgg": "CBGSC38C2AA10324",
-                      "bet365": "BT3SC88126EEE8F0",
-                      "parimatch_by": "PABSCCCA809DB401"
-                    },
-                    "status": "OK",
-                    "event_names": {
-                      "LBTSCC7E1368C8B2": "Abingdon United (w) vs Maidenhead United (w)",
-                      "CBGSC38C2AA10324": "Abingdon United W. vs Maidenhead United W.",
-                      "BT3SC88126EEE8F0": "Abingdon United Women vs Maidenhead Utd Women",
-                      "PABSCCCA809DB401": "Абингдон Юн(жен) vs Мэйденхэд Юн(жен)"
-                    }
-                  }
-                }
-              }
+            "data": {
+                "need_cfs": [
+                    12.25,
+                    11,
+                    11
+                ],
+                "cf_orig": 21,
+                "aw_avg": -4.1,
+                "aw_mdn": -4.1,
+                "ow_avg": -0.1,
+                "ow_mdn": -0.1,
+                "ow2_avg": -2.1,
+                "ow2_mdn": 1.3,
+                "cf_mdn": 11,
+                "cf_avg": 11.387,
+                "cf_avg2": 0.8442,
+                "cf_mdn2": 0.9091,
+                "diff_avg": 4.2,
+                "diff_mdn": 4.5,
+                "min_max_dst": 4.1,
+                "total_cnt": 3,
+                "total_pos": 1,
+                "better_cnt": 0,
+                "min_aw": -4.64,
+                "min_ow": -1.12,
+                "min_diff": 3.4
+            }'
+        
+    ValueData:
+      type: object
+      required:
+      - cfs
+      - data
+      properties:
+        cfs:
+          type: string
+          description: Коэффициенты на других бк (Текущий кф, Сколько секунд назад кф изменился, Текущий счёт в матче, Маржа.)
+        data:
+          type: number
+          description: Валуйные расчеты
+      example:
+        cfs: {
+                "BT3": '[
+                    "21",
+                    120,
+                    "0:2 (9:25 13:25 19:21)",
+                    4.56
+                ]',
+                "WLN": '[
+                    "12.25",
+                    23,
+                    "0:2 (9:25 13:25 19:21)",
+                    8.16
+                ]',
+                "1WN": '[
+                    "11",
+                    77,
+                    "0:2 (9:25 13:25 19:21)",
+                    null
+                ]',
+                "STY": '[
+                    "11",
+                    137,
+                    "0:2 (9:25 13:25 19:21)",
+                    8.1
+                ]'
             }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      }
-    },
-    "/markets": {
-      "get": {
-        "tags": [
-          "PREMATCH / LIVE-События"
-        ],
-        "summary": "Поиск рынков",
-        "description": "Запрос для поиска рынков по заданным параметрам.<br>Один из параметров обязателен при запросе - __bk_event_ids__ и/или __bk_name__<br><details><summary>**<i>Описание составляющих meta (развернуть):</i>**</summary><p><br>Мета может меняться от спорта и от бк! Будьте внимательны!<br>Мы обычно старое не убираем, а лишь добавляем новое. Стараемся всегда сообщать об изменениях через наш официальный телеграм-канал.<br>Что-то из мета может быть не актуально или если у Вас есть какие-то вопросы, то пожалуйста уточнятйте у тех. поддержки.<br><br>Мы можем добавить в мета что-то новое, если Вам это необходимо. В мета ограничение 250 символов, но постараемся это уместить.<br><br>—————<br>**Fonbet:**<br>**live_delay** - переменная напрямую из \"внутренностей\" фонбета. Можете не обращать на него внимания.<br>Чем выше live_delay, тем дольше будет приниматься ставка. Есть ставки, которые принимаются моментально - на них live_delay=0 или 1.<br>Стандартный 3-4, но бывают такие матчи, где 5-6.<br><br>—————<br>**Unibet**<br>**boId** - это id группы ставок<br>**id** - это непосредственно id ставки<br>**event_id** -  eId<br><br>—————<br>**Efbet**<br>**pu** - currentpriceup<br>**pd** - currentpricedown<br>**shc** - selectionhashcode<br>**m**n - marketname<br>**im** - idfomarket<br>**et** - eachwayterms<br>**prt** - pricetypes (есть везде)<br>**hv** - hadvalue (кое где не задано, поэтому что бы не пропадало сделали, его как null если его нет). HV - не всегда А, вообще это значение Home/Away/Draw, есть в некоторых ставках, но не во всех. По больше части там, где это критично для их внутренней идентификаии ставок.<br><br>На уровне ивента добавлен ключ в мету orig_name - имя ивента, как оно на апи в ефбете.<br><br>—————<br>**Семейство 1xbet (melbet/1xstavka)**<br>**NB** - nameBet/name_bet<br>**NG** - nameGroup/name_group<br>**C** - Price<br>**G** - Bet gourp id<br>**P** - идентификатор ставки, используется в форах/тоталах<br>**T** - идентификатор ставки<br>**SSI** - SubsportID<br>**GN** - gameNum<br>**ei** - event_id<br>**gi** - game_id<br><br>—————<br>**888**<br>**s_name** - название спорта на сайте<br><br>—————<br>**Pinnacle**<br>**\"key\":\"s;0;s;0.25** - это marketKey, конкретно этот - фора в игре 0.25<br>**\"dest\"** - может быть “null”, если у исхода нет данного поля<br>**\"dest\\\":\\\"under\\\"** - новый ключ для TU (TotalUnder)<br>**\"dest\\\":\\\"over\\\"** - новый ключ для TO (TotalOver)<br>**\"points\"** - для фор и тоталов с оригинальным значением из API, т.е. без учёта знака и счёта для фор. Для других видов ставок поля 'points' не добавляется в мету.<br><br>—————<br>**pari-match (Parimatch_com/Parimatch_ru)**<br>Париматч ру парсится с parimatch.ru (он же до недавнего времени new.parimatch.com). https://air2.parimatch.com представляет собой старую версию parimatch.ru (то есть это по сути и есть старая версия того же париматч ру). Поэтому у них очень похожая в принципе мета. То есть, parimatch com основан непостредственно на parimatch.com, new_parimatch_ru основан на parimatch.ru<br><br>—————<br>**bet365**<br>**visible_ru** - false/true, флаг \"видимости\". Информация о «видимости» матча с  рф-версии сайта. Это определяется по нескольким критериям, они не на поверхности.<br>**true** - матч видно<br>**false** - матч недоступен для рф версии.<br>Информация доступна в мета-данных по самому событию<br><br>—————<br>**eurobet**<br>**betGroup** - верхняя группа<br>**oggGroup** - то что внутри блока<br>**odd** - текст третьего уровня<br>**resultCode** - id кнопки они там по порядку идут, в html этого нет, но с этой метой в целом ставку можно найти без особых проблем<br></p></details><br>",
-        "operationId": "getMarkets",
-        "parameters": [
-          {
-            "name": "bk_event_ids",
-            "required": true,
-            "description": "список id событий",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            },
-            "example": "FONBM50F801035DE,OLPBM3A2C25A6CAF"
-          },
-          {
-            "name": "sport",
-            "required": false,
-            "description": "Список видов спорта",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            },
-            "example": "tennis,soccer"
-          },
-          {
-            "name": "bk_name",
-            "required": true,
-            "description": "Идентификатор букмекера",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            },
-            "example": "fonbet"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Market"
-                }
-              }
+        data: {
+                "need_cfs": '[
+                    12.25,
+                    11,
+                    11
+                ]',
+                "cf_orig": 21,
+                "aw_avg": -4.1,
+                "aw_mdn": -4.1,
+                "ow_avg": -0.1,
+                "ow_mdn": -0.1,
+                "ow2_avg": -2.1,
+                "ow2_mdn": 1.3,
+                "cf_mdn": 11,
+                "cf_avg": 11.387,
+                "cf_avg2": 0.8442,
+                "cf_mdn2": 0.9091,
+                "diff_avg": 4.2,
+                "diff_mdn": 4.5,
+                "min_max_dst": 4.1,
+                "total_cnt": 3,
+                "total_pos": 1,
+                "better_cnt": 0,
+                "min_aw": -4.64,
+                "min_ow": -1.12,
+                "min_diff": 3.4
             }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "description": "Рынок не найден",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/MissingParameterError"
-          }
-        }
-      }
-    },
-    "/markets/{bk_event_id}": {
-      "get": {
-        "tags": [
-          "PREMATCH / LIVE-События"
-        ],
-        "summary": "Получение всех рынков определенного события",
-        "description": "Запрос для поиска всех рынков определенного события<br><details><summary>**<i>Описание составляющих meta (развернуть):</i>**</summary><p><br>Мета может меняться от спорта и от бк! Будьте внимательны!<br>Мы обычно старое не убираем, а лишь добавляем новое. Стараемся всегда сообщать об изменениях через наш официальный телеграм-канал.<br>Что-то из мета может быть не актуально или если у Вас есть какие-то вопросы, то пожалуйста уточнятйте у тех. поддержки.<br><br>Мы можем добавить в мета что-то новое, если Вам это необходимо. В мета ограничение 250 символов, но постараемся это уместить.<br><br>—————<br>**Fonbet:**<br>**live_delay** - переменная напрямую из \"внутренностей\" фонбета. Можете не обращать на него внимания.<br>Чем выше live_delay, тем дольше будет приниматься ставка. Есть ставки, которые принимаются моментально - на них live_delay=0 или 1.<br>Стандартный 3-4, но бывают такие матчи, где 5-6.<br><br>—————<br>**Unibet**<br>**boId** - это id группы ставок<br>**id** - это непосредственно id ставки<br>**event_id** -  eId<br><br>—————<br>**Efbet**<br>**pu** - currentpriceup<br>**pd** - currentpricedown<br>**shc** - selectionhashcode<br>**m**n - marketname<br>**im** - idfomarket<br>**et** - eachwayterms<br>**prt** - pricetypes (есть везде)<br>**hv** - hadvalue (кое где не задано, поэтому что бы не пропадало сделали, его как null если его нет). HV - не всегда А, вообще это значение Home/Away/Draw, есть в некоторых ставках, но не во всех. По больше части там, где это критично для их внутренней идентификаии ставок.<br><br>На уровне ивента добавлен ключ в мету orig_name - имя ивента, как оно на апи в ефбете.<br><br>—————<br>**Семейство 1xbet (melbet/1xstavka)**<br>**NB** - nameBet/name_bet<br>**NG** - nameGroup/name_group<br>**C** - Price<br>**G** - Bet gourp id<br>**P** - идентификатор ставки, используется в форах/тоталах<br>**T** - идентификатор ставки<br>**SSI** - SubsportID<br>**GN** - gameNum<br>**ei** - event_id<br>**gi** - game_id<br><br>—————<br>**888**<br>**s_name** - название спорта на сайте<br><br>—————<br>**Pinnacle**<br>**\"key\":\"s;0;s;0.25** - это marketKey, конкретно этот - фора в игре 0.25<br>**\"dest\"** - может быть “null”, если у исхода нет данного поля<br>**\"dest\\\":\\\"under\\\"** - новый ключ для TU (TotalUnder)<br>**\"dest\\\":\\\"over\\\"** - новый ключ для TO (TotalOver)<br>**\"points\"** - для фор и тоталов с оригинальным значением из API, т.е. без учёта знака и счёта для фор. Для других видов ставок поля 'points' не добавляется в мету.<br><br>—————<br>**pari-match (Parimatch_com/Parimatch_ru)**<br>Париматч ру парсится с parimatch.ru (он же до недавнего времени new.parimatch.com). https://air2.parimatch.com представляет собой старую версию parimatch.ru (то есть это по сути и есть старая версия того же париматч ру). Поэтому у них очень похожая в принципе мета. То есть, parimatch com основан непостредственно на parimatch.com, new_parimatch_ru основан на parimatch.ru<br><br>—————<br>**bet365**<br>**visible_ru** - false/true, флаг \"видимости\". Информация о «видимости» матча с  рф-версии сайта. Это определяется по нескольким критериям, они не на поверхности.<br>**true** - матч видно<br>**false** - матч недоступен для рф версии.<br>Информация доступна в мета-данных по самому событию<br><br>—————<br>**eurobet**<br>**betGroup** - верхняя группа<br>**oggGroup** - то что внутри блока<br>**odd** - текст третьего уровня<br>**resultCode** - id кнопки они там по порядку идут, в html этого нет, но с этой метой в целом ставку можно найти без особых проблем<br></p></details><br>",
-        "operationId": "getEventMarkets",
-        "parameters": [
-          {
-            "name": "bk_event_id",
-            "required": true,
-            "description": "id события",
-            "in": "path",
-            "schema": {
-              "type": "string"
-            },
-            "example": "WLNBS21B94619065"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Market"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "422": {
-            "$ref": "#/components/responses/MissingParameterError"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "Value": {
-        "type": "object",
-        "required": [
-          "fork_id",
-          "event_id",
-          "income",
-          "BK1_name",
-          "BK2_name",
-          "BK1_bet_type",
-          "BK2_bet_type",
-          "bet_type",
-          "sport",
-          "BK1_game",
-          "BK2_game",
-          "BK1_bet",
-          "BK2_bet",
-          "BK1_alt_bet",
-          "BK2_alt_bet",
-          "BK1_cf",
-          "BK2_cf",
-          "BK1_event_id",
-          "BK2_event_id",
-          "BK1_event_native_id",
-          "BK2_event_native_id",
-          "BK1_event_meta",
-          "BK2_event_meta",
-          "BK1_market_meta",
-          "BK2_market_meta",
-          "BK1_href",
-          "BK2_href",
-          "BK1_league",
-          "BK2_league",
-          "BK1_score",
-          "BK2_score",
-          "alive_sec"
-        ],
-        "properties": {
-          "fork_id": {
-            "type": "string",
-            "description": "ID валуя (ключ валуя)"
-          },
-          "event_id": {
-            "type": "number",
-            "description": "Идентификатор группы событий"
-          },
-          "income": {
-            "type": "number",
-            "description": "% валуя (fi)"
-          },
-          "BK1_name": {
-            "type": "string",
-            "description": "Идентификатор БК на которой валуем (БК-1)",
-            "example": "fonbet"
-          },
-          "BK2_name": {
-            "type": "string",
-            "description": "Всегда \"valuebets\"",
-            "example": "valuebets"
-          },
-          "BK1_bet_type": {
-            "description": "Тип ставки на БК-1",
-            "$ref": "#/components/schemas/BetType"
-          },
-          "BK2_bet_type": {
-            "description": "Тип ставки на БК-2",
-            "$ref": "#/components/schemas/BetType"
-          },
-          "bet_type": {
-            "description": "Общий тип ставок в вилке. Если bk1_bet_type = bk2_bet_type,\nто bet_type = bk1_bet_type, иначе MIX"
-          },
-          "sport": {
-            "type": "string",
-            "description": "Вид спорта",
-            "example": "tennis"
-          },
-          "BK1_game": {
-            "type": "string",
-            "description": "Название события на БК-1"
-          },
-          "BK2_game": {
-            "type": "string",
-            "description": "Название события на БК-2"
-          },
-          "BK1_bet": {
-            "type": "string",
-            "description": "Ставка на БК-1"
-          },
-          "BK2_bet": {
-            "type": "string",
-            "description": "Ставка на БК-2"
-          },
-          "BK1_alt_bet": {
-            "type": "string",
-            "nullable": true,
-            "description": "Альтернативная ставка на БК-1"
-          },
-          "BK2_alt_bet": {
-            "type": "string",
-            "nullable": true,
-            "description": "Альтернативная ставка на БК-2"
-          },
-          "BK1_cf": {
-            "type": "number",
-            "description": "Коэффициент на БК-1"
-          },
-          "BK2_cf": {
-            "type": "number",
-            "description": "Коэффициент на БК-2"
-          },
-          "BK1_event_id": {
-            "type": "string",
-            "description": "Идентификатор (наш внутренний) события на БК-1"
-          },
-          "BK2_event_id": {
-            "type": "string",
-            "description": "Идентификатор (наш внутренний) события на БК-2"
-          },
-          "BK1_event_native_id": {
-            "type": "string",
-            "description": "Идентификатор (нативный, как на самой бк) события на БК-1"
-          },
-          "BK2_event_native_id": {
-            "type": "string",
-            "description": "Идентификатор (нативный, как на самой бк) события на БК-2"
-          },
-          "BK1_event_meta": {
-            "type": "string",
-            "description": "Формат: JSON. Мета-данные по событию на БК-1"
-          },
-          "BK2_event_meta": {
-            "type": "string",
-            "description": "Формат: JSON. Мета-данные по событию на БК-2"
-          },
-          "BK1_market_meta": {
-            "type": "string",
-            "description": "Формат: JSON. Мета-данные для поиска нужной ставки на БК-1"
-          },
-          "BK2_market_meta": {
-            "type": "string",
-            "description": "Формат: JSON. Мета-данные для поиска нужной ставки на БК-2"
-          },
-          "BK1_href": {
-            "type": "string",
-            "description": "Ссылка на событие на БК-1"
-          },
-          "BK2_href": {
-            "type": "string",
-            "description": "Ссылка на событие на БК-2"
-          },
-          "BK1_league": {
-            "type": "string",
-            "description": "Название лиги на БК-1"
-          },
-          "BK2_league": {
-            "type": "string",
-            "description": "Название лиги на БК-2"
-          },
-          "BK1_score": {
-            "type": "string",
-            "description": "Текущий счёт на БК-1"
-          },
-          "BK2_score": {
-            "type": "string",
-            "description": "Текущий счёт на БК-2"
-          },
-          "alive_sec": {
-            "type": "string",
-            "description": "Сколько секунд вилка имеет процент выше заданного в alive_prc (-1%)"
-          },
-          "valuing_data": {
-            "type": "string",
-            "description": "Формат - JSON. Коэффициенты на других бк, валуйные расчеты, счет на других бк и последнее время изменение коэфицента."
-          }
-        },
-        "example": {
-          "fork_id": "8a86a9cd528b53b366",
-          "income": 0,
-          "sport": "volleyball",
-          "bet_type": "WIN",
-          "event_id": "178089",
-          "BK1_bet": "WIN__P1",
-          "BK1_bet_type": "WIN",
-          "BK1_alt_bet": "",
-          "BK1_cf": 3,
-          "BK1_event_id": "BT3VBD2545FB3320",
-          "BK1_event_native_id": "6V200234215476232932C91A_1_1",
-          "BK1_game": "Zenit Novosibirsk-pro vs Izumrud Berdsk-pro",
-          "BK1_href": "https://www.bet365.com/#/IP/EV15924988815C13",
-          "BK1_league": "Russia Liga Pro",
-          "BK1_name": "bet365",
-          "BK1_score": "1:1 (19:25 25:23 17:20)",
-          "BK1_event_meta": "",
-          "BK1_market_meta": "{\"betId\":\"687799702\",\"name\":\"Game Lines|Zenit Novosibirsk-pro|Winner\"}",
-          "BK2_bet": "WIN__P1",
-          "BK2_bet_type": "WIN",
-          "BK2_alt_bet": "",
-          "BK2_cf": 2.75,
-          "BK2_event_id": "",
-          "BK2_event_native_id": "",
-          "BK2_game": "",
-          "BK2_href": "",
-          "BK2_league": "",
-          "BK2_name": "valuebets",
-          "BK2_score": "",
-          "BK2_event_meta": "",
-          "BK2_market_meta": "",
-          "alive_sec": 32,
-          "valuing_data": "{ \"cfs\": { \"BT3\": [ \"21\", 120, \"0:2 (9:25 13:25 19:21)\", 4.56 ], \"WLN\": [ \"12.25\", 23, \"0:2 (9:25 13:25 19:21)\", 8.16 ], \"1WN\": [ \"11\", 77, \"0:2 (9:25 13:25 19:21)\", null ], \"STY\": [ \"11\", 137, \"0:2 (9:25 13:25 19:21)\", 8.1 ] }, \"data\": { \"need_cfs\": [ 12.25, 11, 11 ], \"cf_orig\": 21, \"aw_avg\": -4.1, \"aw_mdn\": -4.1, \"ow_avg\": -0.1, \"ow_mdn\": -0.1, \"ow2_avg\": -2.1, \"ow2_mdn\": 1.3, \"cf_mdn\": 11, \"cf_avg\": 11.387, \"cf_avg2\": 0.8442, \"cf_mdn2\": 0.9091, \"diff_avg\": 4.2, \"diff_mdn\": 4.5, \"min_max_dst\": 4.1, \"total_cnt\": 3, \"total_pos\": 1, \"better_cnt\": 0, \"min_aw\": -4.64, \"min_ow\": -1.12, \"min_diff\": 3.4 }"
-        }
-      },
-      "ValueData": {
-        "type": "object",
-        "required": [
-          "cfs",
-          "data"
-        ],
-        "properties": {
-          "cfs": {
-            "type": "string",
-            "description": "Коэффициенты на других бк (Текущий кф, Сколько секунд назад кф изменился, Текущий счёт в матче, Маржа.)"
-          },
-          "data": {
-            "type": "number",
-            "description": "Валуйные расчеты"
-          }
-        },
-        "example": {
-          "cfs": {
-            "BT3": "[ \"21\", 120, \"0:2 (9:25 13:25 19:21)\", 4.56 ]",
-            "WLN": "[ \"12.25\", 23, \"0:2 (9:25 13:25 19:21)\", 8.16 ]",
-            "1WN": "[ \"11\", 77, \"0:2 (9:25 13:25 19:21)\", null ]",
-            "STY": "[ \"11\", 137, \"0:2 (9:25 13:25 19:21)\", 8.1 ]"
-          },
-          "data": {
-            "need_cfs": "[ 12.25, 11, 11 ]",
-            "cf_orig": 21,
-            "aw_avg": -4.1,
-            "aw_mdn": -4.1,
-            "ow_avg": -0.1,
-            "ow_mdn": -0.1,
-            "ow2_avg": -2.1,
-            "ow2_mdn": 1.3,
-            "cf_mdn": 11,
-            "cf_avg": 11.387,
-            "cf_avg2": 0.8442,
-            "cf_mdn2": 0.9091,
-            "diff_avg": 4.2,
-            "diff_mdn": 4.5,
-            "min_max_dst": 4.1,
-            "total_cnt": 3,
-            "total_pos": 1,
-            "better_cnt": 0,
-            "min_aw": -4.64,
-            "min_ow": -1.12,
-            "min_diff": 3.4
-          }
-        }
-      },
-      "Fork": {
-        "type": "object",
-        "required": [
-          "fork_id",
-          "event_id",
-          "income",
-          "ow_income",
-          "is_middles",
-          "is_cyber",
-          "BK1_name",
-          "BK2_name",
-          "BK1_bet_type",
-          "BK2_bet_type",
-          "bet_type",
-          "sport",
-          "BK1_game",
-          "BK2_game",
-          "BK1_bet",
-          "BK2_bet",
-          "BK1_alt_bet",
-          "BK2_alt_bet",
-          "BK1_cf",
-          "BK2_cf",
-          "BK1_event_id",
-          "BK2_event_id",
-          "BK1_event_native_id",
-          "BK2_event_native_id",
-          "BK1_event_meta",
-          "BK2_event_meta",
-          "BK1_market_meta",
-          "BK2_market_meta",
-          "BK1_href",
-          "BK2_href",
-          "BK1_league",
-          "BK2_league",
-          "BK1_score",
-          "BK2_score",
-          "alive_sec"
-        ],
-        "properties": {
-          "fork_id": {
-            "type": "string",
-            "description": "Ключ вилки (fork_key)"
-          },
-          "event_id": {
-            "type": "number",
-            "description": "Идентификатор группы событий"
-          },
-          "income": {
-            "type": "number",
-            "description": "% вилки (fi)"
-          },
-          "ow_income": {
-            "type": "number",
-            "description": "fi * 2 + bk1_margin + bk2_margin (ow)"
-          },
-          "is_middles": {
-            "type": "boolean",
-            "description": "false - обычная вилка, true - коридор"
-          },
-          "is_cyber": {
-            "type": "boolean",
-            "description": "false - не является киберспортом, true - явялется киберспортом"
-          },
-          "BK1_name": {
-            "type": "string",
-            "description": "Идентификатор первой БК (БК-1)",
-            "example": "fonbet"
-          },
-          "BK2_name": {
-            "type": "string",
-            "description": "Идентификатор второй БК (БК-2)",
-            "example": "fonbet"
-          },
-          "BK1_bet_type": {
-            "description": "Тип ставки на БК-1",
-            "$ref": "#/components/schemas/BetType"
-          },
-          "BK2_bet_type": {
-            "description": "Тип ставки на БК-2",
-            "$ref": "#/components/schemas/BetType"
-          },
-          "bet_type": {
-            "description": "Общий тип ставок в вилке. Если bk1_bet_type = bk2_bet_type,\nто bet_type = bk1_bet_type, иначе MIX"
-          },
-          "sport": {
-            "type": "string",
-            "description": "Вид спорта",
-            "example": "tennis"
-          },
-          "BK1_game": {
-            "type": "string",
-            "description": "Название события на БК-1"
-          },
-          "BK2_game": {
-            "type": "string",
-            "description": "Название события на БК-2"
-          },
-          "BK1_bet": {
-            "type": "string",
-            "description": "Ставка на БК-1"
-          },
-          "BK2_bet": {
-            "type": "string",
-            "description": "Ставка на БК-2"
-          },
-          "BK1_alt_bet": {
-            "type": "string",
-            "nullable": true,
-            "description": "Альтернативная ставка на БК-1"
-          },
-          "BK2_alt_bet": {
-            "type": "string",
-            "nullable": true,
-            "description": "Альтернативная ставка на БК-2"
-          },
-          "BK1_cf": {
-            "type": "number",
-            "description": "Коэффициент на БК-1"
-          },
-          "BK2_cf": {
-            "type": "number",
-            "description": "Коэффициент на БК-2"
-          },
-          "BK1_event_id": {
-            "type": "string",
-            "description": "Идентификатор (наш внутренний) события на БК-1"
-          },
-          "BK2_event_id": {
-            "type": "string",
-            "description": "Идентификатор (наш внутренний) события на БК-2"
-          },
-          "BK1_event_native_id": {
-            "type": "string",
-            "description": "Идентификатор (нативный, как на самой бк) события на БК-1"
-          },
-          "BK2_event_native_id": {
-            "type": "string",
-            "description": "Идентификатор (нативный, как на самой бк) события на БК-2"
-          },
-          "BK1_event_meta": {
-            "type": "string",
-            "description": "Формат: JSON. Мета-данные по событию на БК-1"
-          },
-          "BK2_event_meta": {
-            "type": "string",
-            "description": "Формат: JSON. Мета-данные по событию на БК-2"
-          },
-          "BK1_market_meta": {
-            "type": "string",
-            "description": "Формат: JSON. Мета-данные для поиска нужной ставки на БК-1"
-          },
-          "BK2_market_meta": {
-            "type": "string",
-            "description": "Формат: JSON. Мета-данные для поиска нужной ставки на БК-2"
-          },
-          "BK1_href": {
-            "type": "string",
-            "description": "Ссылка на событие на БК-1"
-          },
-          "BK2_href": {
-            "type": "string",
-            "description": "Ссылка на событие на БК-2"
-          },
-          "BK1_league": {
-            "type": "string",
-            "description": "Название лиги на БК-1"
-          },
-          "BK2_league": {
-            "type": "string",
-            "description": "Название лиги на БК-2"
-          },
-          "BK1_score": {
-            "type": "string",
-            "description": "Текущий счёт на БК-1"
-          },
-          "BK2_score": {
-            "type": "string",
-            "description": "Текущий счёт на БК-2"
-          },
-          "alive_sec": {
-            "type": "string",
-            "description": "Сколько секунд вилка имеет процент выше заданного в alive_prc (-1%)"
-          },
-          "cfs1": {
-            "type": "string",
-            "description": "Коэффициенты на команду №1"
-          },
-          "cfs2": {
-            "type": "string",
-            "description": "Коэффициенты на команду №2"
-          },
-          "all_scores": {
-            "type": "string",
-            "description": "Текущий счёт на вилочном матче по всем БК."
-          },
-          "BK1_event_swapped": {
-            "type": "string",
-            "description": "Был ли перевернут порядок команд у БК1."
-          },
-          "BK2_event_swapped": {
-            "type": "string",
-            "description": "Был ли перевернут порядок команд у БК2."
-          }
-        },
-        "example": {
-          "fork_id": "8a86a9cd528b53b366",
-          "income": 0,
-          "sport": "volleyball",
-          "bet_type": "WIN",
-          "event_id": "178089",
-          "is_middles": "0",
-          "is_cyber": "0",
-          "ow_income": 14.98,
-          "BK1_bet": "WIN__P1",
-          "BK1_bet_type": "WIN",
-          "BK1_alt_bet": "",
-          "BK1_cf": 3,
-          "BK1_event_id": "BT3VBD2545FB3320",
-          "BK1_event_native_id": "6V200234215476232932C91A_1_1",
-          "BK1_game": "Zenit Novosibirsk-pro vs Izumrud Berdsk-pro",
-          "BK1_href": "https://www.bet365.com/#/IP/EV15924988815C13",
-          "BK1_league": "Russia Liga Pro",
-          "BK1_name": "bet365",
-          "BK1_score": "1:1 (19:25 25:23 17:20)",
-          "BK1_event_meta": "",
-          "BK1_market_meta": "{\"betId\":\"687799702\",\"name\":\"Game Lines|Zenit Novosibirsk-pro|Winner\"}",
-          "BK2_bet": "WIN__P2",
-          "BK2_bet_type": "WIN",
-          "BK2_alt_bet": "",
-          "BK2_cf": 1.5,
-          "BK2_event_id": "FONVB5B99B3C9A2B",
-          "BK2_event_native_id": "20190837",
-          "BK2_game": "Зенит Новосибирск-про vs Изумруд Бердск-про",
-          "BK2_href": "https://www.fonbet.ru//sport/event/volleyball/45580/20190837/",
-          "BK2_league": "Россия. Лига Про. Новосибирск",
-          "BK2_name": "fonbet",
-          "BK2_score": "1:1 (19:25 25:23 17:20*)",
-          "BK2_event_meta": "",
-          "BK2_market_meta": "{\"isHeader\":true,\"fieldName\":\"v2\",\"factor_id\":923}",
-          "alive_sec": 32,
-          "cfs1": "{\"SBI\":\"2.74\",\"XST\":\"2.89\",\"PAB\":\"3.15\",\"PAC\":\"3.15\",\"PAN\":\"3.15\",\"IFO\":\"2.93\",\"STX\":\"3.45\",\"OLC\":\"3.08\",\"TNC\":\"3.03\",\"DOW\":\"3.326\",\"DAF\":\"3.43\",\"LBT\":\"3.08\",\"VBT\":\"2.95\",\"BOR\":\"2.95\",\"OLP\":\"2.06\",\"XBI\":\"2.856\",\"XBT\":\"2.89\",\"MLB\":\"2.856\",\"PIN\":\"3.55\",\"BT3\":\"2.825\",\"BCY\":\"3.2\",\"BCT\":\"3.2\",\"WLN\":\"2.86\",\"BVD\":\"2.9\",\"BNB\":\"2.94\",\"FAV\":\"2.64\",\"ZEN\":\"2.97\",\"GGB\":\"3.01\",\"GGG\":\"3.01\",\"MTH\":\"3.2\",\"MTU\":\"3.2\"}",
-          "cfs2": "{\"SBI\":\"1.34\",\"XST\":\"1.43\",\"PAB\":\"1.33\",\"PAC\":\"1.33\",\"PAN\":\"1.33\",\"IFO\":\"1.29\",\"STX\":\"1.26\",\"OLC\":\"1.32\",\"TNC\":\"1.33\",\"DOW\":\"1.25\",\"DAF\":\"1.23\",\"LBT\":\"1.3\",\"VBT\":\"1.35\",\"BOR\":\"1.35\",\"OLP\":\"1.68\",\"XBI\":\"1.41\",\"XBT\":\"1.43\",\"MLB\":\"1.41\",\"PIN\":\"1.268\",\"BT3\":\"1.375\",\"BCY\":\"1.3\",\"BCT\":\"1.3\",\"WLN\":\"1.34\",\"BVD\":\"1.385\",\"BNB\":\"1.35\",\"FAV\":\"1.41\",\"ZEN\":\"1.35\",\"GGB\":\"1.32\",\"GGG\":\"1.32\",\"MTH\":\"1.3\",\"MTU\":\"1.3\"}",
-          "all_scores": "\\[[[\"SBI\"],\"2:0 ( 2:0)\"],[[\"XST\"],\"2:0 (2:0) 30:12|H1\"],[[\"PAB\",\"PAC\",\"PAN\",\"BCY\"],\"2:0 (2:0) 30:07\"],[[\"IFO\",\"LBT\"],\"2:0 (2:0)\"],[[\"STX\"],\"2:0 30:19\"],[[\"OLC\"],\"2:0 31\\\"\"],[[\"TNC\",\"DOW\",\"PIN\",\"GGB\",\"GGG\"],\"2:0\"],[[\"DAF\"],\"0:0\"],[[\"VBT\",\"BOR\"],\"2:0 (2:0) 31`\"],[[\"OLP\"],\"2:0 19:00\"],[[\"XBI\"],\"2:0 (2:0) 30:09|H1\"],[[\"XBT\"],\"2:0 (2:0) 30:08|H1\"],[[\"MLB\"],\"2:0 (2:0) 30:07|H1\"],[[\"BT3\"],\"2:0 30:14\"],[[\"BCT\",\"FAV\"],\"2:0 (2:0) 30:06\"],[[\"WLN\"],\"2:0 (2:0) 30\"],[[\"BVD\"],\"2:0 (2:0) 17:28\"],[[\"BNB\"],\"\"],[[\"ZEN\"],\"2:0 31\"],[[\"MTH\",\"MTU\"],\"2:0 30:00 \"]]",
-          "BK1_event_swapped": "0",
-          "BK2_event_swapped": "0"
-        }
-      },
-      "Sport": {
-        "type": "object",
-        "required": [
-          "sport_id",
-          "sport_name",
-          "display_name_ru",
-          "display_name_en"
-        ],
-        "properties": {
-          "sport_id": {
-            "type": "string",
-            "description": "Краткое обозначение спорта"
-          },
-          "sport_name": {
-            "type": "string",
-            "description": "Используется для запросов"
-          },
-          "display_name_ru": {
-            "type": "string",
-            "description": "Название на русском"
-          },
-          "display_name_en": {
-            "type": "string",
-            "description": "Название на английском"
-          }
-        },
-        "example": {
-          "sport_id": "TN",
-          "sport_name": "tennis",
-          "display_name_ru": "Теннис",
-          "display_name_en": "Tennis"
-        }
-      },
-      "Bookmaker": {
-        "type": "object",
-        "required": [
-          "bk_id",
-          "bk_name",
-          "display_name_ru",
-          "display_name_en",
-          "production",
-          "private",
-          "active"
-        ],
-        "properties": {
-          "bk_id": {
-            "type": "string",
-            "description": "Краткое обозначение букмекера"
-          },
-          "bk_name": {
-            "type": "string",
-            "description": "Используется для запросов"
-          },
-          "display_name_ru": {
-            "type": "string",
-            "description": "Название на русском"
-          },
-          "display_name_en": {
-            "type": "string",
-            "description": "Название на английском"
-          },
-          "production": {
-            "type": "string",
-            "description": "Букмекер протестирован"
-          },
-          "private": {
-            "type": "string",
-            "description": "Букмекер является приватным"
-          },
-          "active": {
-            "type": "string",
-            "description": "Букмекер доступен для запросов"
-          }
-        },
-        "example": {
-          "bk_id": "FON",
-          "bk_name": "fonbet",
-          "display_name": "Фонбет",
-          "display_name_en": "Fonbet",
-          "production": "1",
-          "private": "0",
-          "active": "1"
-        }
-      },
-      "BetType": {
-        "type": "string",
-        "enum": [
-          "MIX",
-          "WIN",
-          "WIN_OT",
-          "WIN_RT",
-          "SET_WIN",
-          "HALF_WIN",
-          "HALF_WIN_OT",
-          "GAME_WIN",
-          "TOTALS",
-          "SET_TOTALS",
-          "HALF_TOTALS",
-          "TOTALS_OT",
-          "TOTALS_RT",
-          "HALF_TOTALS_OT",
-          "TEAM_TOTALS_CORNERS",
-          "TEAM_TOTALS",
-          "SET_TEAM_TOTALS",
-          "HALF_TEAM_TOTALS",
-          "TEAM_TOTALS_OT",
-          "TEAM_TOTALS_RT",
-          "HANDICAP",
-          "HANDICAP_3W",
-          "HALF_HANDICAP",
-          "SET_HANDICAP",
-          "HANDICAP_OT",
-          "HANDICAP_RT",
-          "HALF_HANDICAP_OT",
-          "TEAMS_TO_SCORE",
-          "SET_TEAMS_TO_SCORE",
-          "HALF_TEAMS_TO_SCORE",
-          "CORRECT_SCORE",
-          "SET_CORRECT_SCORE",
-          "HALF_CORRECT_SCORE",
-          "WHO_SCORE",
-          "SET_WHO_SCORE",
-          "HALF_WHO_SCORE",
-          "WILL_BE_OT",
-          "SET_WILL_BE_OT",
-          "FIRST_TO_SCORE",
-          "TOTALS_ODD",
-          "SET_TOTALS_ODD",
-          "HALF_TOTALS_ODD",
-          "TEAM_TOTALS_ODD",
-          "SET_TEAM_TOTALS_ODD",
-          "HALF_TEAM_TOTALS_ODD",
-          "CLEAN_SHEET",
-          "SETS_TOTALS",
-          "SETS_HANDICAP",
-          "WIN_HALF_MATCH",
-          "TOTALS_CORNERS",
-          "HALF_TOTALS_CORNERS",
-          "HANDICAP_CORNERS",
-          "HALF_HANDICAP_CORNERS",
-          "ASIAN_TOTALS",
-          "SET_TOTALS",
-          "HALF_TOTALS",
-          "WIN_CORNERS",
-          "HALF_WIN_CORNERS",
-          "ASIAN_TOTALS_CORNERS",
-          "HALF_ASIAN_TOTALS_CORNERS",
-          "WHO_SCORE_3W",
-          "SET_TOTALS_3W",
-          "HALF_TOTALS_CORNERS_3W",
-          "HALF_TOTALS_3W",
-          "TOTALS_CORNERS_3W",
-          "TOTALS3W_CORNERS",
-          "HALF_TOTALS3W_CORNERS",
-          "TEAM_GOALS",
-          "SET_TEAM_GOALS",
-          "HALF_TEAM_GOALS"
-        ]
-      },
-      "Event": {
-        "type": "object",
-        "required": [
-          "bk_event_id",
-          "bk_event_native_id",
-          "bk_name",
-          "bk_id",
-          "event_id",
-          "event_name",
-          "team1",
-          "team2",
-          "direct_link",
-          "league_name",
-          "score",
-          "sport",
-          "sport_id",
-          "active",
-          "updated_at",
-          "last_cf_at",
-          "swapped"
-        ],
-        "properties": {
-          "bk_name": {
-            "type": "string",
-            "example": "fonbet",
-            "description": "Идентификатор букмекера"
-          },
-          "bk_id": {
-            "type": "string",
-            "example": "FON",
-            "description": "Краткое обозначение букмекера"
-          },
-          "event_id": {
-            "type": "string",
-            "description": "Идентификатор группы событий"
-          },
-          "bk_event_id": {
-            "type": "string",
-            "description": "Идентификатор события внутри системы"
-          },
-          "bk_event_native_id": {
-            "type": "string",
-            "description": "Идентификатор события на букмекере"
-          },
-          "event_name": {
-            "type": "string",
-            "description": "Полное название события"
-          },
-          "team1": {
-            "type": "string",
-            "description": "Название первой команды"
-          },
-          "team2": {
-            "type": "string",
-            "description": "Название второй команды"
-          },
-          "direct_link": {
-            "type": "string",
-            "description": "Ссылка на событие на БК"
-          },
-          "league_name": {
-            "type": "string",
-            "description": "Название лиги/соревнования"
-          },
-          "score": {
-            "type": "string",
-            "description": "Текущий счёт"
-          },
-          "sport": {
-            "type": "string",
-            "example": "tennis",
-            "description": "Вид спорта"
-          },
-          "sport_id": {
-            "type": "string",
-            "example": "tennis",
-            "description": "Краткое обозначение спорта"
-          },
-          "active": {
-            "type": "string",
-            "example": "tennis",
-            "description": "Индикатор активности события"
-          },
-          "updated_at": {
-            "type": "string",
-            "example": "tennis",
-            "description": "Время последнего изменения события (счета)"
-          },
-          "last_cf_at": {
-            "type": "string",
-            "example": "tennis",
-            "description": "Время последнего изменения коэффициентов"
-          },
-          "swapped": {
-            "type": "string",
-            "example": "tennis",
-            "description": "Был ли перевернут порядок команд"
-          }
-        },
-        "example": {
-          "bk_event_id": "XBTTTDFE64657483",
-          "bk_event_native_id": "225864109",
-          "bk_name": "1xbet",
-          "bk_id": "XBT",
-          "sport_id": "TT",
-          "sport": "table-tennis",
-          "event_name": "Татьяна Юган (Укр) vs Татьяна Ярошенко (Укр)",
-          "team1": "Татьяна Юган (Укр)",
-          "team2": "Татьяна Ярошенко (Укр)",
-          "league_name": "Сетка Кап. Женщины",
-          "direct_link": "https://1xstavka.ru/live/Table-Tennis/1734759-Setka-Cup-Women/225864109-Tatiana-Yugan-Tatiana-Yaroshenko",
-          "added_at": "1581918479",
-          "score": "2:0 (11:6 12:10 4:2) (0:0)",
-          "active": "1",
-          "updated_at": "1581920029",
-          "last_cf_at": "1581920029",
-          "event_id": "93134",
-          "swapped": "0"
-        }
-      },
-      "Market": {
-        "type": "object",
-        "required": [
-          "bet",
-          "cf",
-          "direct_link",
-          "blocked",
-          "meta",
-          "updated_at",
-          "updated_at_ms"
-        ],
-        "properties": {
-          "bet": {
-            "type": "string",
-            "description": "Название ставки"
-          },
-          "cf": {
-            "type": "number",
-            "description": "Коэффициент"
-          },
-          "direct_link": {
-            "type": "string",
-            "description": "Ссылка на событие"
-          },
-          "blocked": {
-            "type": "boolean",
-            "description": "Индикатор блокировки ставки (ставка недоступна на самой БК)"
-          },
-          "meta": {
-            "type": "string",
-            "description": "Формат JSON. Мета-данные для поиска нужной ставки на БК."
-          },
-          "updated_at": {
-            "type": "number",
-            "description": "Метка времени последнего обновления ставки"
-          },
-          "updated_at_ms": {
-            "type": "number",
-            "description": "Метка времени последнего обновления ставки в милисекундах"
-          }
-        },
-        "example": {
-          "bet": "WIN__P1",
-          "blocked": "0",
-          "cf": "1.02",
-          "direct_link": "",
-          "meta": "{\"group_name\":\"Основные\",\"market_name\":\"Исходы\",\"outcome_name\":\"1\",\"subevent_id\":31703982,\"market_type\":0,\"market_num\":120,\"factor_id\":921}",
-          "updated_at": "1573193575",
-          "updated_at_ms": "1573193575251"
-        }
-      },
-      "Error": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string"
-          },
-          "msg": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "securitySchemes": {
-      "URITokenAuth": {
-        "description": "Ключ пользователя передаётся со всеми остальными параметрами в\nQuery String. Его можно найти в Личном Кабинете, после оплаты/подключения\nтарифа.",
-        "type": "apiKey",
-        "in": "query",
-        "name": "token"
-      }
-    },
-    "responses": {
-      "UnauthorizedError": {
-        "description": "Токен отсутствует, просрочен или не хватает прав",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/Error"
-            }
-          }
-        }
-      },
-      "MissingParameterError": {
-        "description": "Отсутствует указанный параметр",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/Error"
-            }
-          }
-        }
-      }
-    }
-  },
-  "security": [
-    {
-      "URITokenAuth": []
-    }
-  ]
-}
+        
+    Fork:
+      type: object
+      required:
+      - fork_id
+      - event_id
+      - income
+      - ow_income
+      - is_middles
+      - is_cyber
+      - BK1_name
+      - BK2_name
+      - BK1_bet_type
+      - BK2_bet_type
+      - bet_type
+      - sport
+      - BK1_game
+      - BK2_game
+      - BK1_bet
+      - BK2_bet
+      - BK1_alt_bet
+      - BK2_alt_bet
+      - BK1_cf
+      - BK2_cf
+      - BK1_event_id
+      - BK2_event_id
+      - BK1_event_native_id
+      - BK2_event_native_id
+      - BK1_event_meta
+      - BK2_event_meta
+      - BK1_market_meta
+      - BK2_market_meta
+      - BK1_href
+      - BK2_href
+      - BK1_league
+      - BK2_league
+      - BK1_score
+      - BK2_score
+      - alive_sec
+      properties:
+        fork_id:
+          type: string
+          description: Ключ вилки (fork_key)
+        event_id:
+          type: number
+          description: Идентификатор группы событий
+        income:
+          type: number
+          description: "% вилки (fi)"
+        ow_income:
+          type: number
+          description: fi * 2 + bk1_margin + bk2_margin (ow)
+        is_middles:
+          type: boolean
+          description: false - обычная вилка, true - коридор
+        is_cyber:
+          type: boolean
+          description: false - не является киберспортом, true - явялется киберспортом
+        BK1_name:
+          type: string
+          description: Идентификатор первой БК (БК-1)
+          example: fonbet
+        BK2_name:
+          type: string
+          description: Идентификатор второй БК (БК-2)
+          example: fonbet
+        BK1_bet_type:
+          description: Тип ставки на БК-1
+          "$ref": "#/components/schemas/BetType"
+        BK2_bet_type:
+          description: Тип ставки на БК-2
+          "$ref": "#/components/schemas/BetType"
+        bet_type:
+          description: |-
+            Общий тип ставок в вилке. Если bk1_bet_type = bk2_bet_type,
+            то bet_type = bk1_bet_type, иначе MIX
+        sport:
+          type: string
+          description: Вид спорта
+          example: tennis
+        BK1_game:
+          type: string
+          description: Название события на БК-1
+        BK2_game:
+          type: string
+          description: Название события на БК-2
+        BK1_bet:
+          type: string
+          description: Ставка на БК-1
+        BK2_bet:
+          type: string
+          description: Ставка на БК-2
+        BK1_alt_bet:
+          type: string
+          nullable: true
+          description: Альтернативная ставка на БК-1
+        BK2_alt_bet:
+          type: string
+          nullable: true
+          description: Альтернативная ставка на БК-2
+        BK1_cf:
+          type: number
+          description: Коэффициент на БК-1
+        BK2_cf:
+          type: number
+          description: Коэффициент на БК-2
+        BK1_event_id:
+          type: string
+          description: Идентификатор (наш внутренний) события на БК-1
+        BK2_event_id:
+          type: string
+          description: Идентификатор (наш внутренний) события на БК-2
+        BK1_event_native_id:
+          type: string
+          description: Идентификатор (нативный, как на самой бк) события на БК-1
+        BK2_event_native_id:
+          type: string
+          description: Идентификатор (нативный, как на самой бк) события на БК-2
+        BK1_event_meta:
+          type: string
+          description: 'Формат: JSON. Мета-данные по событию на БК-1'
+        BK2_event_meta:
+          type: string
+          description: 'Формат: JSON. Мета-данные по событию на БК-2'
+        BK1_market_meta:
+          type: string
+          description: 'Формат: JSON. Мета-данные для поиска нужной ставки на БК-1'
+        BK2_market_meta:
+          type: string
+          description: 'Формат: JSON. Мета-данные для поиска нужной ставки на БК-2'
+        BK1_href:
+          type: string
+          description: Ссылка на событие на БК-1
+        BK2_href:
+          type: string
+          description: Ссылка на событие на БК-2
+        BK1_league:
+          type: string
+          description: Название лиги на БК-1
+        BK2_league:
+          type: string
+          description: Название лиги на БК-2
+        BK1_score:
+          type: string
+          description: Текущий счёт на БК-1
+        BK2_score:
+          type: string
+          description: Текущий счёт на БК-2
+        alive_sec:
+          type: string
+          description: Сколько секунд вилка имеет процент выше заданного в alive_prc
+            (-1%)
+        cfs1:
+          type: string
+          description: Коэффициенты на команду №1
+        cfs2:
+          type: string
+          description: Коэффициенты на команду №2
+        all_scores:
+          type: string
+          description: Текущий счёт на вилочном матче по всем БК.
+        BK1_event_swapped:
+          type: string
+          description: Был ли перевернут порядок команд у БК1.
+        BK2_event_swapped:
+          type: string
+          description: Был ли перевернут порядок команд у БК2.
+      example:
+        fork_id: 8a86a9cd528b53b366
+        income: 0
+        sport: volleyball
+        bet_type: WIN
+        event_id: '178089'
+        is_middles: '0'
+        is_cyber: '0'
+        ow_income: 14.98
+        BK1_bet: WIN__P1
+        BK1_bet_type: WIN
+        BK1_alt_bet: ''
+        BK1_cf: 3
+        BK1_event_id: BT3VBD2545FB3320
+        BK1_event_native_id: 6V200234215476232932C91A_1_1
+        BK1_game: Zenit Novosibirsk-pro vs Izumrud Berdsk-pro
+        BK1_href: https://www.bet365.com/#/IP/EV15924988815C13
+        BK1_league: Russia Liga Pro
+        BK1_name: bet365
+        BK1_score: 1:1 (19:25 25:23 17:20)
+        BK1_event_meta: ''
+        BK1_market_meta: '{"betId":"687799702","name":"Game Lines|Zenit Novosibirsk-pro|Winner"}'
+        BK2_bet: WIN__P2
+        BK2_bet_type: WIN
+        BK2_alt_bet: ''
+        BK2_cf: 1.5
+        BK2_event_id: FONVB5B99B3C9A2B
+        BK2_event_native_id: '20190837'
+        BK2_game: Зенит Новосибирск-про vs Изумруд Бердск-про
+        BK2_href: https://www.fonbet.ru//sport/event/volleyball/45580/20190837/
+        BK2_league: Россия. Лига Про. Новосибирск
+        BK2_name: fonbet
+        BK2_score: 1:1 (19:25 25:23 17:20*)
+        BK2_event_meta: ''
+        BK2_market_meta: '{"isHeader":true,"fieldName":"v2","factor_id":923}'
+        alive_sec: 32
+        cfs1: '{"SBI":"2.74","XST":"2.89","PAB":"3.15","PAC":"3.15","PAN":"3.15","IFO":"2.93","STX":"3.45","OLC":"3.08","TNC":"3.03","DOW":"3.326","DAF":"3.43","LBT":"3.08","VBT":"2.95","BOR":"2.95","OLP":"2.06","XBI":"2.856","XBT":"2.89","MLB":"2.856","PIN":"3.55","BT3":"2.825","BCY":"3.2","BCT":"3.2","WLN":"2.86","BVD":"2.9","BNB":"2.94","FAV":"2.64","ZEN":"2.97","GGB":"3.01","GGG":"3.01","MTH":"3.2","MTU":"3.2"}'
+        cfs2: '{"SBI":"1.34","XST":"1.43","PAB":"1.33","PAC":"1.33","PAN":"1.33","IFO":"1.29","STX":"1.26","OLC":"1.32","TNC":"1.33","DOW":"1.25","DAF":"1.23","LBT":"1.3","VBT":"1.35","BOR":"1.35","OLP":"1.68","XBI":"1.41","XBT":"1.43","MLB":"1.41","PIN":"1.268","BT3":"1.375","BCY":"1.3","BCT":"1.3","WLN":"1.34","BVD":"1.385","BNB":"1.35","FAV":"1.41","ZEN":"1.35","GGB":"1.32","GGG":"1.32","MTH":"1.3","MTU":"1.3"}'
+        all_scores: \[[["SBI"],"2:0 ( 2:0)"],[["XST"],"2:0 (2:0) 30:12|H1"],[["PAB","PAC","PAN","BCY"],"2:0 (2:0) 30:07"],[["IFO","LBT"],"2:0 (2:0)"],[["STX"],"2:0 30:19"],[["OLC"],"2:0 31\""],[["TNC","DOW","PIN","GGB","GGG"],"2:0"],[["DAF"],"0:0"],[["VBT","BOR"],"2:0 (2:0) 31`"],[["OLP"],"2:0 19:00"],[["XBI"],"2:0 (2:0) 30:09|H1"],[["XBT"],"2:0 (2:0) 30:08|H1"],[["MLB"],"2:0 (2:0) 30:07|H1"],[["BT3"],"2:0 30:14"],[["BCT","FAV"],"2:0 (2:0) 30:06"],[["WLN"],"2:0 (2:0) 30"],[["BVD"],"2:0 (2:0) 17:28"],[["BNB"],""],[["ZEN"],"2:0 31"],[["MTH","MTU"],"2:0 30:00 "]]
+        BK1_event_swapped: '0'
+        BK2_event_swapped: '0'
+
+    Sport:
+      type: object
+      required:
+      - sport_id
+      - sport_name
+      - display_name_ru
+      - display_name_en
+      properties:
+        sport_id:
+          type: string
+          description: Краткое обозначение спорта
+        sport_name:
+          type: string
+          description: Используется для запросов
+        display_name_ru:
+          type: string
+          description: Название на русском
+        display_name_en:
+          type: string
+          description: Название на английском
+      example:
+        sport_id: TN
+        sport_name: tennis
+        display_name_ru: Теннис
+        display_name_en: Tennis
+    Bookmaker:
+      type: object
+      required:
+      - bk_id
+      - bk_name
+      - display_name_ru
+      - display_name_en
+      - production
+      - private
+      - active
+      properties:
+        bk_id:
+          type: string
+          description: Краткое обозначение букмекера
+        bk_name:
+          type: string
+          description: Используется для запросов
+        display_name_ru:
+          type: string
+          description: Название на русском
+        display_name_en:
+          type: string
+          description: Название на английском
+        production:
+          type: string
+          description: Букмекер протестирован
+        private:
+          type: string
+          description: Букмекер является приватным
+        active:
+          type: string
+          description: Букмекер доступен для запросов
+      example:
+        bk_id: FON
+        bk_name: fonbet
+        display_name: Фонбет
+        display_name_en: Fonbet
+        production: '1'
+        private: '0'
+        active: '1'
+    BetType:
+      type: string
+      enum:
+      - MIX
+      - WIN
+      - WIN_OT
+      - WIN_RT
+      - SET_WIN
+      - HALF_WIN
+      - HALF_WIN_OT
+      - GAME_WIN
+      - TOTALS
+      - SET_TOTALS
+      - HALF_TOTALS
+      - TOTALS_OT
+      - TOTALS_RT
+      - HALF_TOTALS_OT
+      - TEAM_TOTALS_CORNERS
+      - TEAM_TOTALS
+      - SET_TEAM_TOTALS
+      - HALF_TEAM_TOTALS
+      - TEAM_TOTALS_OT
+      - TEAM_TOTALS_RT
+      - HANDICAP
+      - HANDICAP_3W
+      - HALF_HANDICAP
+      - SET_HANDICAP
+      - HANDICAP_OT
+      - HANDICAP_RT
+      - HALF_HANDICAP_OT
+      - TEAMS_TO_SCORE
+      - SET_TEAMS_TO_SCORE
+      - HALF_TEAMS_TO_SCORE
+      - CORRECT_SCORE
+      - SET_CORRECT_SCORE
+      - HALF_CORRECT_SCORE
+      - WHO_SCORE
+      - SET_WHO_SCORE
+      - HALF_WHO_SCORE
+      - WILL_BE_OT
+      - SET_WILL_BE_OT
+      - FIRST_TO_SCORE
+      - TOTALS_ODD
+      - SET_TOTALS_ODD
+      - HALF_TOTALS_ODD
+      - TEAM_TOTALS_ODD
+      - SET_TEAM_TOTALS_ODD
+      - HALF_TEAM_TOTALS_ODD
+      - CLEAN_SHEET
+      - SETS_TOTALS
+      - SETS_HANDICAP
+      - WIN_HALF_MATCH
+      - TOTALS_CORNERS
+      - HALF_TOTALS_CORNERS
+      - HANDICAP_CORNERS
+      - HALF_HANDICAP_CORNERS
+      - ASIAN_TOTALS
+      - SET_TOTALS
+      - HALF_TOTALS
+      - WIN_CORNERS
+      - HALF_WIN_CORNERS
+      - ASIAN_TOTALS_CORNERS
+      - HALF_ASIAN_TOTALS_CORNERS
+      - WHO_SCORE_3W
+      - SET_TOTALS_3W
+      - HALF_TOTALS_CORNERS_3W
+      - HALF_TOTALS_3W
+      - TOTALS_CORNERS_3W
+      - TOTALS3W_CORNERS
+      - HALF_TOTALS3W_CORNERS
+      - TEAM_GOALS
+      - SET_TEAM_GOALS
+      - HALF_TEAM_GOALS
+    Event:
+      type: object
+      required:
+      - bk_event_id
+      - bk_event_native_id
+      - bk_name
+      - bk_id
+      - event_id
+      - event_name
+      - team1
+      - team2
+      - direct_link
+      - league_name
+      - score
+      - sport
+      - sport_id
+      - active
+      - updated_at
+      - last_cf_at
+      - swapped
+      properties:
+        bk_name:
+          type: string
+          example: fonbet
+          description: Идентификатор букмекера
+        bk_id:
+          type: string
+          example: FON
+          description: Краткое обозначение букмекера
+        event_id:
+          type: string
+          description: Идентификатор группы событий
+        bk_event_id:
+          type: string
+          description: Идентификатор события внутри системы
+        bk_event_native_id:
+          type: string
+          description: Идентификатор события на букмекере
+        event_name:
+          type: string
+          description: Полное название события
+        team1:
+          type: string
+          description: Название первой команды
+        team2:
+          type: string
+          description: Название второй команды
+        direct_link:
+          type: string
+          description: Ссылка на событие на БК
+        league_name:
+          type: string
+          description: Название лиги/соревнования
+        score:
+          type: string
+          description: Текущий счёт
+        sport:
+          type: string
+          example: tennis
+          description: Вид спорта
+        sport_id:
+          type: string
+          example: tennis
+          description: Краткое обозначение спорта
+        active:
+          type: string
+          example: tennis
+          description: Индикатор активности события
+        updated_at:
+          type: string
+          example: tennis
+          description: Время последнего изменения события (счета)
+        last_cf_at:
+          type: string
+          example: tennis
+          description: Время последнего изменения коэффициентов
+        swapped:
+          type: string
+          example: tennis
+          description: Был ли перевернут порядок команд        
+      example:
+        bk_event_id: XBTTTDFE64657483
+        bk_event_native_id: '225864109'
+        bk_name: 1xbet
+        bk_id: XBT
+        sport_id: TT
+        sport: table-tennis
+        event_name: Татьяна Юган (Укр) vs Татьяна Ярошенко (Укр)
+        team1: Татьяна Юган (Укр)
+        team2: Татьяна Ярошенко (Укр)
+        league_name: Сетка Кап. Женщины
+        direct_link: https://1xstavka.ru/live/Table-Tennis/1734759-Setka-Cup-Women/225864109-Tatiana-Yugan-Tatiana-Yaroshenko
+        added_at: '1581918479'
+        score: 2:0 (11:6 12:10 4:2) (0:0)
+        active: '1'
+        updated_at: '1581920029'
+        last_cf_at: '1581920029'
+        event_id: '93134'
+        swapped: '0'
+    Market:
+      type: object
+      required:
+      - bet
+      - cf
+      - direct_link
+      - blocked
+      - meta
+      - updated_at
+      - updated_at_ms
+      properties:
+        bet:
+          type: string
+          description: Название ставки
+        cf:
+          type: number
+          description: Коэффициент
+        direct_link:
+          type: string
+          description: Ссылка на событие
+        blocked:
+          type: boolean
+          description: Индикатор блокировки ставки (ставка недоступна на самой БК)
+        meta:
+          type: string
+          description: Формат JSON. Мета-данные для поиска нужной ставки на БК.
+        updated_at:
+          type: number
+          description: Метка времени последнего обновления ставки
+        updated_at_ms:
+          type: number
+          description: Метка времени последнего обновления ставки в милисекундах
+      example:
+        bet: WIN__P1
+        blocked: '0'
+        cf: '1.02'
+        direct_link: ''
+        meta: '{"group_name":"Основные","market_name":"Исходы","outcome_name":"1","subevent_id":31703982,"market_type":0,"market_num":120,"factor_id":921}'
+        updated_at: '1573193575'
+        updated_at_ms: '1573193575251'
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+        msg:
+          type: string
+  securitySchemes:
+    URITokenAuth:
+      description: |-
+        Ключ пользователя передаётся со всеми остальными параметрами в
+        Query String. Его можно найти в Личном Кабинете, после оплаты/подключения
+        тарифа.
+      type: apiKey
+      in: query
+      name: token
+  responses:
+    UnauthorizedError:
+      description: Токен отсутствует, просрочен или не хватает прав
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/Error"
+    MissingParameterError:
+      description: Отсутствует указанный параметр
+      content:
+        application/json:
+          schema:
+            "$ref": "#/components/schemas/Error"
+security:
+- URITokenAuth: []
