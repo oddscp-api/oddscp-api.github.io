@@ -1,10 +1,16 @@
 ---
 openapi: 3.0.0
 info:
-  title: 'oddscp.com: LIVE Odds HTTP API'
+  title: 'ODDSCORP.COM: API букмекерских вилок, валуев и информации о LIVE и PREMATCH спортивных событиях'
   description: |-
-    API для получения букмекерских вилок и информации о LIVE спортивных
-    событиях
+    <a href="http://oddscorp.com">ODDSCORP.COM</a> - API для получения букмекерских вилок, валуев и информации о LIVE и PREMATCH спортивных событиях c различных букмекерских контор и бирж:<br>
+    bet365 (бет365), 1xbet, fonbet, betcity,  betfair, bingoboom (betboom), bookmaker, winline, stake, pinnacle, parimatch, olimp, marathon, ligastavok, 188bet и других. <br><br>
+    Список всех доступных БК можно посмотеть по <a href="https://docs.google.com/spreadsheets/d/1LFDmgJr0qpDwYo2gpjQXPyRz6TGNaY0-O9cIOWwCHqE/edit?usp=sharing">этой ссылке</a>. По запросу мы готовы подключать другие БК.<br><br>
+    В нашем API букмекерских контор для ставок, вы найдете информацию спортивных событий от 65+ букмекеров. Вы сможете использовать данные по API для совершения валуйных и арбитражных ставок.<br><br>
+    Обратитесь в поддержку (telegram: <a href ="https://t.me/oddscorp">@oddscorp</a>) и вам предоставят тестовый период для получения по АПИ букмекерских вилок, валуев, обновленных коэффицентов в лайве и прематче.
+    <br><br>
+    <a href="https://t.me/+C1owllhgJXBlZGVi">Наш телеграм канал с полезной информацией </a>
+    
   version: 0.1.1
 servers:
 - url: http://api.oddscp.com:8111
