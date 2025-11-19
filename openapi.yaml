@@ -9,7 +9,7 @@ info:
     В нашем API букмекерских контор для ставок, вы найдете информацию спортивных событий от 65+ букмекеров. Вы сможете использовать данные по API для совершения валуйных и арбитражных ставок.<br><br>
     Обратитесь в поддержку (telegram: <a href ="https://t.me/oddscorp">@oddscorp</a>) и вам предоставят тестовый период для получения по АПИ букмекерских вилок, валуев, обновленных коэффицентов в лайве и прематче.
     <br><br>
-    <a href="https://t.me/+C1owllhgJXBlZGVi">Наш телеграм канал с полезной информацией </a>
+    <a href="https://t.me/+C1owllhgJXBlZGVi">Наш телеграм канал с полезной информацией </a><br><br>The English version of the documentation is available at <a href ="https://oddstest1.github.io/oddscorp-api/">this link</a>.
     
   version: 0.1.1
 servers:
